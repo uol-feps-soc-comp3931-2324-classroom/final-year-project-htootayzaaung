@@ -1,0 +1,23 @@
+__________________________________________________________________________________________________
+Remember to replace the paths for these "train" and "val" with the absolute paths in wherever you |
+will be cloning this repository.                                                                  |
+__________________________________________________________________________________________________|
+
+train: /home/htootayzaaung/Desktop/Intruder_Detection_System/train/images
+val: /home/htootayzaaung/Desktop/Intruder_Detection_System/val/images
+
+1.) Training the model:
+
+yolo task=detect mode=train epochs=50 data=data_custom.yaml model=yolov8m.pt imgsz=640 device=cpu
+
+
+2.) After training the model, you might have ot test your model with the following command remember 
+to replace the path of the model shown here with the acutal absolute path of the model :
+
+yolo task=detect mode=predict model=runs/detect/train6/weights/best.pt conf=0.25 source=test/images
+
+__________________________________________________________________________________________________
+train_object_detection.py only trains the models that uses the annotations/labels that are        | 
+appropriate for object detection only. The .txt files from "labels" must strictly adhere in such a| 
+way that it is appropriate to train a YOLO object detection model.  				              |
+__________________________________________________________________________________________________|
