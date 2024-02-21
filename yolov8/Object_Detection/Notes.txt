@@ -8,12 +8,12 @@ I have noticed that training with GPU resulted greater mean-average precision sc
 2.) After training the model, you might have ot test your model with the following command remember 
 to replace the path of the model shown here with the acutal absolute path of the model :
 
-yolo task=detect mode=predict model=runs/detect/train6/weights/best.pt conf=0.25 source=test/images
+yolo task=detect mode=predict model=runs/detect/train/weights/best.pt conf=0.25 source=test/images
 
 __________________________________________________________________________________________________
 train.py only trains the models that uses the annotations/labels that are appropriate for object  |
 detection only. The .txt files from "labels" must strictly adhere in such av way that it is       |
-appropriate to train a YOLO object detection model.  				                  |
+appropriate to train a YOLO object detection model.  				                              |
 __________________________________________________________________________________________________|
 
 The files needed to be uploaded to Google-Collab in the following directory structure:
@@ -94,5 +94,7 @@ After running the cell "!python train.py" the "runs" directory will produce the 
 │               ├── best.pt
 │               └── last.pt
 
-Remember that this training process will only work if the following instructions are meticulously followed
-and used in Google Collab.
+__________________________________________________________________________________________________
+Remember that this training process will only work if the following instructions are meticulously |
+followed and used in Google Collab.                                                               |
+__________________________________________________________________________________________________|
