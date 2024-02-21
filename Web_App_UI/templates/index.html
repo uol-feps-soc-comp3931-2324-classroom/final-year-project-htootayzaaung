@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Real-time Object Detection</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/static/js/main.js"></script>
+</head>
+<body onload="updateVideoFeed()">
+    <div>
+        <h1>Real-time Object Detection</h1>
+        <div>
+            <label for="model-select">Choose a model:</label>
+            <select id="model-select">
+                {% for model_file in model_files %}
+                <option value="{{ model_file }}">{{ model_file }}</option>
+                {% endfor %}
+            </select>
+            <button onclick="loadModel()">Load Model</button>
+        </div>
+        <img id="video-feed" width="640" height="480" />
+    </div>
+</body>
+</html>
