@@ -13,7 +13,7 @@ yolo task=detect mode=predict model=runs/detect/train6/weights/best.pt conf=0.25
 __________________________________________________________________________________________________
 train.py only trains the models that uses the annotations/labels that are appropriate for object  |
 detection only. The .txt files from "labels" must strictly adhere in such av way that it is       |
-appropriate to train a YOLO object detection model.  				                              |
+appropriate to train a YOLO object detection model.  				                  |
 __________________________________________________________________________________________________|
 
 The files needed to be uploaded to Google-Collab in the following directory structure:
@@ -93,3 +93,6 @@ After running the cell "!python train.py" the "runs" directory will produce the 
 │           └── weights
 │               ├── best.pt
 │               └── last.pt
+
+Remember that this training process will only work if the following instructions are meticulously followed
+and used in Google Collab.
