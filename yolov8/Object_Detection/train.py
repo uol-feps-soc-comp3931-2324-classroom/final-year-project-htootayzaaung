@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-def train_yolov8(data_yaml, model_weights, img_size=640, epochs=20, batch_size=8, device='cpu'):
+def train_yolov8(data_yaml, model_weights, img_size=640, epochs=20, batch_size=8):
     """
     Train a YOLOv8 model with specified parameters.
 
@@ -11,10 +11,9 @@ def train_yolov8(data_yaml, model_weights, img_size=640, epochs=20, batch_size=8
     - img_size: Image size for training.
     - epochs: Number of training epochs.
     - batch_size: Batch size for training.
-    - device: Device to use for training ('cpu' or 'cuda').
     """
     # Construct the command to run the training
-    train_cmd = f"yolo task=detect mode=train epochs={epochs} data={data_yaml} model={model_weights} imgsz={img_size} batch={batch_size} device={device}"
+    train_cmd = f"yolo task=detect mode=train epochs={epochs} data={data_yaml} model={model_weights} imgsz={img_size} batch={batch_size}"
     
     # Execute the training command
     try:
@@ -28,9 +27,10 @@ def train_yolov8(data_yaml, model_weights, img_size=640, epochs=20, batch_size=8
 data_yaml = 'data_custom.yaml'
 model_weights = 'yolov8m.pt'
 img_size = 640
-epochs = 20
+epochs = 50
 batch_size = 8
-device = 'cpu'
+device = 'gpu'
 
 # Train the model
-train_yolov8(data_yaml, model_weights, img_size, epochs, batch_size, device)
+train_yolov8(data_yaml, model_weights, img_size, epochs, batch_size)
+
