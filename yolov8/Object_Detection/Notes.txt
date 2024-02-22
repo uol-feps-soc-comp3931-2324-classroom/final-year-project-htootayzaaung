@@ -64,35 +64,42 @@ The files needed to be uploaded to Google-Collab in the following directory stru
 └── yolov8m.pt
 
 After running the cell "!python train.py" the "runs" directory will produce the following output files:
-├── runs
-│   └── detect
-│       └── train
-│           ├── args.yaml
-│           ├── confusion_matrix_normalized.png
-│           ├── confusion_matrix.png
-│           ├── F1_curve.png
-│           ├── labels_correlogram.jpg
-│           ├── labels.jpg
-│           ├── P_curve.png
-│           ├── PR_curve.png
-│           ├── R_curve.png
-│           ├── results.csv
-│           ├── results.png
-│           ├── train_batch0.jpg
-│           ├── train_batch1130.jpg
-│           ├── train_batch1131.jpg
-│           ├── train_batch1132.jpg
-│           ├── train_batch1.jpg
-│           ├── train_batch2.jpg
-│           ├── val_batch0_labels.jpg
-│           ├── val_batch0_pred.jpg
-│           ├── val_batch1_labels.jpg
-│           ├── val_batch1_pred.jpg
-│           ├── val_batch2_labels.jpg
-│           ├── val_batch2_pred.jpg
-│           └── weights
-│               ├── best.pt
-│               └── last.pt
+runs
+   └── detect
+       ├── predict
+       │   ├── 003af63a783a1615_jpg.rf.a1604da0249e644b875324c60a0021a7.jpg
+       │   ├── 0231d2f11eb7a483_jpg.rf.ab7f38f1316b341d3b58f7ee7e84beed.jpg
+       │   ├── 0255c5b642987e73_jpg.rf.149bc300c6626152c94570d7c837a2ce.jpg
+       │   ├── 0315e60e498caa4c_jpg.rf.9150790f9da78819fd88c41d72ca86b0.jpg
+       |   └── ...
+       └── train
+           ├── args.yaml
+           ├── confusion_matrix_normalized.png
+           ├── confusion_matrix.png
+           ├── events.out.tfevents.1708561251.a8b3182df19b.1446.0
+           ├── F1_curve.png
+           ├── labels_correlogram.jpg
+           ├── labels.jpg
+           ├── P_curve.png
+           ├── PR_curve.png
+           ├── R_curve.png
+           ├── results.csv
+           ├── results.png
+           ├── train_batch0.jpg
+           ├── train_batch1.jpg
+           ├── train_batch2.jpg
+           ├── train_batch33475.jpg
+           ├── train_batch33476.jpg
+           ├── train_batch33477.jpg
+           ├── val_batch0_labels.jpg
+           ├── val_batch0_pred.jpg
+           ├── val_batch1_labels.jpg
+           ├── val_batch1_pred.jpg
+           ├── val_batch2_labels.jpg
+           ├── val_batch2_pred.jpg
+           └── weights
+               ├── best.pt
+               └── last.pt
 
 __________________________________________________________________________________________________
 Remember that this training process will only work if the following instructions are meticulously |
