@@ -1,4 +1,4 @@
 train: /content/train/images
 val: /content/val/images
 nc: 3
-names: ['Axe', 'Handgun', 'Knife']
+names: ['Axe', 'Gun', 'Knife']
