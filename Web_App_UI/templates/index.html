@@ -5,7 +5,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/static/js/main.js"></script>
 </head>
-<body onload="updateVideoFeed()">
+<body onload="updateVideoFeed();">
     <div>
         <h1>Real-time Object Detection</h1>
         <div>
@@ -18,6 +18,7 @@
             <button onclick="loadModel()">Load Model</button>
         </div>
         <img id="video-feed" width="640" height="480" />
+        <div id="fps-display">FPS: </div> <!-- Display FPS here -->
     </div>
 </body>
 </html>

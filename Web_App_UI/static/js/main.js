@@ -15,9 +15,15 @@ function loadModel() {
 
 function updateVideoFeed() {
     var video = document.getElementById('video-feed');
+    var fpsDisplay = document.getElementById('fps-display'); // Add an element with this id in your HTML
     var source = new EventSource('/video_feed');
 
     source.onmessage = function(event) {
-        video.src = 'data:image/jpeg;base64,' + event.data;
+        var data = JSON.parse(event.data);
+        if (data.type === "frame") {
+            video.src = 'data:image/jpeg;base64,' + data.data;
+        } else if (data.type === "fps") {
+            fpsDisplay.innerText = `FPS: ${data.data}`;
+        }
     };
 }
