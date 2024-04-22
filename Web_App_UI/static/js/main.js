@@ -1,5 +1,5 @@
 function loadModel() {
-    var model_name = document.getElementById('model-select').value;
+    const model_name = document.getElementById('model-select').value;
     $.ajax({
         type: 'POST',
         url: '/load_model',
@@ -14,16 +14,21 @@ function loadModel() {
 }
 
 function updateVideoFeed() {
-    var video = document.getElementById('video-feed');
-    var fpsDisplay = document.getElementById('fps-display'); // Add an element with this id in your HTML
-    var source = new EventSource('/video_feed');
+    const video = document.getElementById('video-feed');
+    const fpsDisplay = document.getElementById('fps-display');  // Ensure this ID matches with HTML
+
+    const source = new EventSource('/video_feed'); // Start event source to get video feed and FPS
 
     source.onmessage = function(event) {
-        var data = JSON.parse(event.data);
-        if (data.type === "frame") {
-            video.src = 'data:image/jpeg;base64,' + data.data;
-        } else if (data.type === "fps") {
-            fpsDisplay.innerText = `FPS: ${data.data}`;
+        const data = JSON.parse(event.data);
+        if (data.type === 'frame') { // If data is video frame
+            video.src = 'data:image/jpeg;base64,' + data.data; // Update video feed
+        } else if (data.type === 'fps') { // If data is FPS
+            fpsDisplay.innerText = `FPS: ${data.data}`; // Update FPS display
         }
+    };
+
+    source.onerror = function() {
+        console.error('Error with event source'); // Handle errors
     };
 }
