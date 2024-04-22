@@ -13,18 +13,19 @@ function loadModel() {
     });
 }
 
-function initVideoFeeds(camera_indices) {
+function initVideoFeeds(cameraIndices) {
     const mainVideo = document.getElementById("main-video-feed");
     const secondaryVideo = document.getElementById("secondary-video-feed");
     const mainFpsDisplay = document.getElementById("main-fps-display");
 
-    const sources = [];
+    window.sources = [];  // Initialize or clear existing sources
+    window.cameraIndices = cameraIndices;  // Store the camera indices globally
 
-    // Initialize EventSources for both cameras
-    camera_indices.forEach((index, i) => {
-        sources[i] = new EventSource(`/video_feed/${index}`);
+    // Initialize EventSources for cameras
+    cameraIndices.forEach((index, i) => {
+        const source = new EventSource(`/video_feed/${index}`);
 
-        sources[i].onmessage = function(event) {
+        source.onmessage = function(event) {
             const data = JSON.parse(event.data);
             if (data.type === "frame") {
                 if (i === 0) {  // Primary feed
@@ -37,27 +38,24 @@ function initVideoFeeds(camera_indices) {
             }
         };
 
-        sources[i].onerror = function() {
+        source.onerror = function() {
             console.error(`Error with event source for camera index ${index}`);
         };
-    });
 
-    window.sources = sources; // Keep the sources array accessible
+        window.sources.push(source);
+    });
 }
 
+
 function setPrimaryCamera() {
-    const primaryIndex = document.getElementById('primary-camera-select').value;
+    const primaryIndex = parseInt(document.getElementById('primary-camera-select').value);
 
-    if (window.sources) {
-        // Determine the current primary index and find the new secondary index
-        const currentPrimarySource = window.sources[0];
-        const newPrimarySource = window.sources.findIndex(source => source.url.includes(`/video_feed/${primaryIndex}`));
+    // Close current EventSources
+    window.sources.forEach(source => source.close());
 
-        if (newPrimarySource !== 0) { // Swap the sources if different
-            // Swap primary and secondary feeds
-            const temp = window.sources[0];
-            window.sources[0] = window.sources[newPrimarySource];
-            window.sources[newPrimarySource] = temp;
-        }
-    }
+    // Update sources to new primary and secondary feeds
+    const newPrimaryIndex = window.cameraIndices.indexOf(primaryIndex);
+    const newCameraIndices = [primaryIndex, ...window.cameraIndices.filter(index => index !== primaryIndex)];
+
+    initVideoFeeds(newCameraIndices);
 }
