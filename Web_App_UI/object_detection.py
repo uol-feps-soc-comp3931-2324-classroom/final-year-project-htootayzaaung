@@ -20,26 +20,33 @@ DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 def load_model(model_name):
     global current_model, model_type  # Declare as global
     model_path = os.path.join(models_directory, model_name)
-    if model_name.endswith('.pth'):
+
+    if model_name.endswith('.pth') and 'detectron' in model_name.lower():
+        # Detectron2 model
         cfg = get_cfg()
         cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
         cfg.MODEL.WEIGHTS = model_path
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3
-        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+        cfg.MODEL.SCORE_THRESH_TEST = 0.5
         cfg.MODEL.DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
         current_model = DefaultPredictor(cfg)
         model_type = 'detectron2'
-        print("Loaded Detectron2 model:", model_path)
-    if model_name.endswith('.pt') and 'yolov' in model_name.lower():
+        print(f"Loaded Detectron2 model: {model_path}")
+
+    elif model_name.endswith('.pt') and 'yolov' in model_name.lower():
+        # YOLO model
         if 'segmentation' in model_name.lower():
             model_type = 'yolo_segmentation'
         else:
             model_type = 'yolo_detection'
         current_model = YOLO(model_path)
+        print(f"Loaded YOLO model: {model_path}")
+
     else:
-        print("Unsupported model format:", model_path)
-        model_type = None
+        # Unsupported model
+        print(f"Unsupported model format: {model_path}")
         current_model = None
+        model_type = None
 
 def overlay(image, mask, color, alpha, resize=None):
     colored_mask = np.expand_dims(mask, 0).repeat(3, axis=0)
