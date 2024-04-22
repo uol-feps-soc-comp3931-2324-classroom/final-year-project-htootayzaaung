@@ -30,9 +30,12 @@ def load_model(model_name):
         current_model = DefaultPredictor(cfg)
         model_type = 'detectron2'
         print("Loaded Detectron2 model:", model_path)
-    elif model_name.endswith('.pt'):
+    if model_name.endswith('.pt') and 'yolov' in model_name.lower():
+        if 'segmentation' in model_name.lower():
+            model_type = 'yolo_segmentation'
+        else:
+            model_type = 'yolo_detection'
         current_model = YOLO(model_path)
-        model_type = 'yolo'
     else:
         print("Unsupported model format:", model_path)
         model_type = None
@@ -78,7 +81,7 @@ def detect_objects(frame):
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-    if model_type == 'yolo':
+    if model_type == 'yolo_detection':
         results = current_model(frame, stream=True)
         for r in results:
             boxes = r.boxes
@@ -90,6 +93,24 @@ def detect_objects(frame):
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 3)
                     cv2.putText(frame, f'{label}: {confidence:.2f}', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
+    elif model_type == 'yolo_segmentation':
+        results = current_model(frame, stream=True)
+        class_names = current_model.names
+        colors = [[random.randint(0, 255) for _ in range(3)] for _ in class_names]
+        for r in results:
+            boxes = r.boxes
+            masks = r.masks
+            if masks is not None:
+                masks = masks.data.cpu()
+                for seg, box in zip(masks.data.cpu().numpy(), boxes):
+                    color = colors[int(box.cls)]
+                    seg = cv2.resize(seg, (frame.shape[1], frame.shape[0]))
+                    frame = overlay(frame, seg, color, 0.4)
+                    xmin = int(box.data[0][0])
+                    ymin = int (box.data[0][1])
+                    xmax = int(box.data[0][2])
+                    ymax = int(box.data[0][3])
+                    plot_one_box([xmin, ymin, xmax, ymax], frame, color, f'{class_names[int(box.cls)]} {float(box.conf):.2f}')
     return frame
 
 def generate_frames():
