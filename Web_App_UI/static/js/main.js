@@ -1,4 +1,3 @@
-// Function to load the model
 function loadModel() {
     const model_name = document.getElementById('model-select').value;
     $.ajax({
@@ -14,46 +13,51 @@ function loadModel() {
     });
 }
 
-// Function to update the primary camera
-function setPrimaryCamera() {
-    const selectedIndex = parseInt(document.getElementById('primary-camera-select').value);
-    const cameraIndices = [0, 4]; // Define the list of camera indices
-    
-    // Swap the indices to set the selected camera as the primary feed
-    if (cameraIndices[0] !== selectedIndex) {
-        cameraIndices[0] = selectedIndex;
-        cameraIndices[1] = cameraIndices.find(i => i !== selectedIndex);
-        updateVideoFeeds(cameraIndices); // Refresh the video feeds with the new order
-    }
-}
-
-// Function to update the video feeds
-function updateVideoFeeds() {
-    const cameraIndices = [0, 4]; // Default camera indices
-
+function initVideoFeeds(camera_indices) {
     const mainVideo = document.getElementById("main-video-feed");
+    const secondaryVideo = document.getElementById("secondary-video-feed");
     const mainFpsDisplay = document.getElementById("main-fps-display");
 
-    const source = new EventSource(`/video_feed/${cameraIndices[0]}`); // Primary feed
-    source.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        if (data.type === "frame") {
-            mainVideo.src = "data:image/jpeg;base64," + data.data;
-        } else if (data.type === "fps") {
-            mainFpsDisplay.innerText = `FPS: ${data.data}`;
-        }
-    };
+    const sources = [];
 
-    if (cameraIndices.length > 1) {
-        const secondaryVideo = document.getElementById("secondary-video-feed");
-        if (secondaryVideo) {
-            const source2 = new EventSource(`/video_feed/${cameraIndices[1]}`); // Secondary feed
-            source2.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                if (data.type === "frame") {
+    // Initialize EventSources for both cameras
+    camera_indices.forEach((index, i) => {
+        sources[i] = new EventSource(`/video_feed/${index}`);
+
+        sources[i].onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.type === "frame") {
+                if (i === 0) {  // Primary feed
+                    mainVideo.src = "data:image/jpeg;base64," + data.data;
+                } else {  // Secondary feed
                     secondaryVideo.src = "data:image/jpeg;base64," + data.data;
                 }
-            };
+            } else if (data.type === "fps" && i === 0) {
+                mainFpsDisplay.innerText = `FPS: ${data.data}`;
+            }
+        };
+
+        sources[i].onerror = function() {
+            console.error(`Error with event source for camera index ${index}`);
+        };
+    });
+
+    window.sources = sources; // Keep the sources array accessible
+}
+
+function setPrimaryCamera() {
+    const primaryIndex = document.getElementById('primary-camera-select').value;
+
+    if (window.sources) {
+        // Determine the current primary index and find the new secondary index
+        const currentPrimarySource = window.sources[0];
+        const newPrimarySource = window.sources.findIndex(source => source.url.includes(`/video_feed/${primaryIndex}`));
+
+        if (newPrimarySource !== 0) { // Swap the sources if different
+            // Swap primary and secondary feeds
+            const temp = window.sources[0];
+            window.sources[0] = window.sources[newPrimarySource];
+            window.sources[newPrimarySource] = temp;
         }
     }
 }

@@ -17,44 +17,40 @@
         }
     </style>
 </head>
-<body>
+<body onload="initVideoFeeds({{ camera_indices|tojson }});"> <!-- Update onload function -->
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-center text-3xl font-bold mb-8">Real-time Object Detection</h1>
         
-        <div class="flex flex-row"> <!-- Use flexbox to arrange video and model selection -->
+        <div class="flex flex-row"> <!-- Flexbox to arrange video and model selection -->
             <div class="w-1/2"> <!-- Left side for the primary video feed -->
                 <h3 class="text-lg font-semibold">Primary Video Feed</h3>
-                <img id="main-video-feed" class="w-full h-auto border rounded-lg shadow" alt="Main Video Feed" />
+                <img id="main-video-feed" class="w-full h-auto border rounded-lg shadow" alt="Main Video Feed" /> <!-- Larger -->
                 <div class="fps-display mt-4" id="main-fps-display">FPS: --</div> <!-- FPS display with placeholder -->
-                
-                <h3 class="text-lg font-semibold mt-6">Select Primary Camera</h3>
-                <select id="primary-camera-select" class="block w-full mt-2 p-2 border rounded-lg"> <!-- Dropdown for primary camera -->
-                    {% for index in camera_indices %}
-                    <option value="{{ index }}">{{ index }}</option>
-                    {% endfor %}
-                </select>
-                <button class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg mt-4 hover:bg-blue-600" onclick="setPrimaryCamera()">Set Primary Camera</button> <!-- Button to set primary camera -->
             </div>
             
-            <div class="w-1/2 pl-6"> <!-- Right side for model selection -->
+            <div class="w-1/2 pl-6"> <!-- Right side for model selection and secondary feed -->
                 <h3 class="text-lg font-semibold">Model Selection</h3>
                 <label for="model-select" class="block text-base font-medium">Choose a model:</label>
-                <select id="model-select" class="block w-full mt-2 p-2 border rounded-lg">
+                <select id="model-select" class="block w-full mt-2 p-2 border rounded-lg"> <!-- Tailwind CSS classes -->
                     {% for model_file in model_files %}
                     <option value="{{ model_file }}">{{ model_file }}</option>
                     {% endfor %}
                 </select>
-                <button class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg mt-4 hover:bg-blue-600" onclick="loadModel()">Load Model</button>
+                <button class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg mt-4 hover:bg-blue-600" onclick="loadModel()">Load Model</button> <!-- Tailwind button -->
+                
+                <h3 class="text-lg font-semibold">Primary Camera Selection</h3>
+                <label for="primary-camera-select" class="block text-base font-medium">Choose the primary camera:</label>
+                <select id="primary-camera-select" class="block w-full mt-2 p-2 border rounded-lg"> <!-- Dropdown for cameras -->
+                    {% for camera_index in camera_indices %}
+                    <option value="{{ camera_index }}">Camera {{ camera_index }}</option>
+                    {% endfor %}
+                </select>
+                <button class="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg mt-4 hover:bg-green-600" onclick="setPrimaryCamera()">Set Primary Camera</button>
                 
                 <h3 class="text-lg font-semibold mt-6">Secondary Video Feed</h3>
                 <img id="secondary-video-feed" class="w-full h-auto border rounded-lg shadow" alt="Secondary Video Feed" />
             </div>
         </div>
     </div>
-    
-    <!-- Update video feeds when the page loads -->
-    <script>
-        updateVideoFeeds();
-    </script>
 </body>
 </html>
