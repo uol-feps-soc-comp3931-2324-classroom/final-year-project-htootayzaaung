@@ -17,7 +17,7 @@
         }
     </style>
 </head>
-<body onload="updateVideoFeeds();">  <!-- Updated to load multiple feeds -->
+<body onload="updateVideoFeeds({{ camera_indices|tojson }});">  <!-- Pass camera_indices -->
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-center text-3xl font-bold mb-8">Real-time Object Detection</h1>
         
@@ -38,9 +38,12 @@
                 </select>
                 <button class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg mt-4 hover:bg-blue-600" onclick="loadModel()">Load Model</button> <!-- Tailwind button -->
                 
-                <!-- Secondary Video Feed -->
-                <h3 class="text-lg font-semibold mt-8">Secondary Video Feed</h3>
-                <img id="secondary-video-feed" class="w-full h-auto border rounded-lg shadow" alt="Secondary Video Feed" /> <!-- Smaller -->
+                {% if camera_indices|length > 1 %}
+                <div class="w-1/2 pl-6">
+                    <h3 class="text-lg font-semibold">Secondary Video Feed</h3>
+                    <img id="secondary-video-feed" class="w-full h-auto border rounded-lg shadow" alt="Secondary Video Feed" />
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

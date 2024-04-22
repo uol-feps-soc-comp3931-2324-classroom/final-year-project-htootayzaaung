@@ -9,11 +9,12 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2 import model_zoo
 from ultralytics import YOLO
+from utility_functions import overlay, plot_one_box
 
 models_directory = "models"
 current_model = None
 model_type = None  # To track the current model type
-camera_indices = [0, 4]  # Known camera indexes
+camera_indices = [4]  # Known camera indexes
 
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 
