@@ -13,22 +13,38 @@ function loadModel() {
     });
 }
 
-function updateVideoFeed() {
-    const video = document.getElementById('video-feed');
-    const fpsDisplay = document.getElementById('fps-display');  // Ensure this ID matches with HTML
+function updateVideoFeeds() {  // Updated function to manage multiple feeds
+    const mainVideo = document.getElementById("main-video-feed");
+    const secondaryVideo = document.getElementById("secondary-video-feed");
+    const mainFpsDisplay = document.getElementById("main-fps-display");
 
-    const source = new EventSource('/video_feed'); // Start event source to get video feed and FPS
+    // Main video feed using camera index 0
+    const mainSource = new EventSource("/video_feed/0");
 
-    source.onmessage = function(event) {
+    mainSource.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        if (data.type === 'frame') { // If data is video frame
-            video.src = 'data:image/jpeg;base64,' + data.data; // Update video feed
-        } else if (data.type === 'fps') { // If data is FPS
-            fpsDisplay.innerText = `FPS: ${data.data}`; // Update FPS display
+        if (data.type === "frame") {
+            mainVideo.src = "data:image/jpeg;base64," + data.data;
+        } else if (data.type === "fps") {
+            mainFpsDisplay.innerText = `FPS: ${data.data}`;
         }
     };
 
-    source.onerror = function() {
-        console.error('Error with event source'); // Handle errors
+    // Secondary video feed using camera index 4
+    const secondarySource = new EventSource("/video_feed/4");
+
+    secondarySource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.type === "frame") {
+            secondaryVideo.src = "data:image/jpeg;base64," + data.data;
+        }
+    };
+
+    mainSource.onerror = function() {
+        console.error("Error with main event source");
+    };
+
+    secondarySource.onerror = function() {
+        console.error("Error with secondary event source");
     };
 }

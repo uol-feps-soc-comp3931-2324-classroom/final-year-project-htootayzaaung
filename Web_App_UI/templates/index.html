@@ -17,15 +17,15 @@
         }
     </style>
 </head>
-<body onload="updateVideoFeed();">
+<body onload="updateVideoFeeds();">  <!-- Updated to load multiple feeds -->
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-center text-3xl font-bold mb-8">Real-time Object Detection</h1>
         
         <div class="flex flex-row"> <!-- Use flexbox to arrange video and model selection -->
-            <div class="w-1/2"> <!-- Left side for video -->
-                <h3 class="text-lg font-semibold">Real-time Video Feed</h3>
-                <img id="video-feed" class="w-full h-auto border rounded-lg shadow" alt="Video Feed" />
-                <div class="fps-display mt-4" id="fps-display">FPS: --</div> <!-- FPS display with placeholder -->
+            <div class="w-1/2"> <!-- Left side for the primary video feed -->
+                <h3 class="text-lg font-semibold">Primary Video Feed</h3>
+                <img id="main-video-feed" class="w-full h-auto border rounded-lg shadow" alt="Main Video Feed" /> <!-- Larger -->
+                <div class="fps-display mt-4" id="main-fps-display">FPS: --</div> <!-- FPS display with placeholder -->
             </div>
             
             <div class="w-1/2 pl-6"> <!-- Right side for model selection -->
@@ -37,6 +37,10 @@
                     {% endfor %}
                 </select>
                 <button class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg mt-4 hover:bg-blue-600" onclick="loadModel()">Load Model</button> <!-- Tailwind button -->
+                
+                <!-- Secondary Video Feed -->
+                <h3 class="text-lg font-semibold mt-8">Secondary Video Feed</h3>
+                <img id="secondary-video-feed" class="w-full h-auto border rounded-lg shadow" alt="Secondary Video Feed" /> <!-- Smaller -->
             </div>
         </div>
     </div>
