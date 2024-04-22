@@ -5,7 +5,6 @@ from flask import Flask, render_template, request, Response
 from ultralytics import YOLO  # Make sure this import is correct and the library is installed
 import cv2
 import base64
-import mediapipe as mp
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.utils.logger import setup_logger
@@ -19,33 +18,13 @@ setup_logger()
 app = Flask(__name__)
 models_directory = "models"
 current_model = None
-mediapipe_detector = None
-
-mediapipe_labels = {
-    0: 'background', # Note: MediaPipe typically expects class 0 to be background
-    1: 'Gun',
-    2: 'Axe'
-}
 
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 
 def load_model(model_name):
-    global current_model, mediapipe_detector, model_type  # Declare as global
+    global current_model, model_type  # Declare as global
     model_path = os.path.join(models_directory, model_name)
-    if model_name.endswith('.pt') and 'yolov' in model_name.lower():
-        if 'segmentation' in model_name.lower():
-            model_type = 'yolo_segmentation'
-        else:
-            model_type = 'yolo_detection'
-        current_model = YOLO(model_path)  # Ensure YOLO is correctly imported
-        print(f"Loaded YOLO model: {model_path}, Type: {model_type}")
-        mediapipe_detector = None
-    elif model_name.endswith('.tflite'):
-        mediapipe_detector = mp.solutions.object_detection.ObjectDetection(model_path=model_path)
-        print("Loaded Mediapipe model:", model_path)
-        current_model = None
-        model_type = 'mediapipe'
-    elif model_name.endswith('.pth'):
+    if model_name.endswith('.pth'):
         cfg = get_cfg()
         cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
         cfg.MODEL.WEIGHTS = model_path
@@ -149,20 +128,6 @@ def detect_objects(frame):
                     ymax = int(box.data[0][3])
                     plot_one_box([xmin, ymin, xmax, ymax], frame, color, f'{class_names[int(box.cls)]} {float(box.conf):.2f}')
         return frame
-                
-    elif mediapipe_detector:  # MediaPipe model handling
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = mediapipe_detector.process(frame_rgb)
-        if results.detections:
-            for detection in results.detections:
-                bboxC = detection.location_data.relative_bounding_box
-                ih, iw, _ = frame.shape
-                bbox = bboxC.xmin * iw, bboxC.ymin * ih, bboxC.width * iw, bboxC.height * ih
-                x, y, w, h = map(int, bbox)
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 255), 3)
-                # Assuming the category ID is directly available; adjust if necessary
-                label = mediapipe_labels.get(detection.label_id[0], 'Unknown')
-                cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
     return frame
 
 def generate_frames():
@@ -178,7 +143,7 @@ def generate_frames():
         new_frame_time = time.time()
 
         # Perform object detection based on the selected model
-        if current_model or mediapipe_detector:
+        if current_model:
             frame = detect_objects(frame)
 
         fps = 1 / (new_frame_time - prev_frame_time)
