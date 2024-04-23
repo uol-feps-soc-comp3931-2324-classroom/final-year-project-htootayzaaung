@@ -59,4 +59,3 @@ function setPrimaryCamera() {
 
     initVideoFeeds(newCameraIndices);
 }
-

@@ -19,7 +19,7 @@ camera_indices = [0, 4]  # Known camera indexes
 
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 
-executor = ThreadPoolExecutor(max_workers=4)  # Adjust as needed
+executor = ThreadPoolExecutor(max_workers=8)  # Adjust as needed
 
 def load_model(model_name):
     global current_model, model_type
