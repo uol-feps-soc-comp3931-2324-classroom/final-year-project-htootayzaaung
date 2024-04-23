@@ -1,6 +1,6 @@
 import os
 import time
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, jsonify
 import base64
 import cv2
 from ultralytics import YOLO

@@ -10,6 +10,7 @@ from detectron2.config import get_cfg
 from detectron2 import model_zoo
 from ultralytics import YOLO
 from utility_functions import overlay, plot_one_box
+from concurrent.futures import ThreadPoolExecutor
 
 models_directory = "models"
 current_model = None
@@ -17,6 +18,8 @@ model_type = None  # To track the current model type
 camera_indices = [0, 4]  # Known camera indexes
 
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
+
+executor = ThreadPoolExecutor(max_workers=4)  # Adjust as needed
 
 def load_model(model_name):
     global current_model, model_type
@@ -97,27 +100,33 @@ def detect_objects(frame):
     
     return frame
 
-
 def generate_frames(camera_index):
     cap = cv2.VideoCapture(camera_index)
     prev_frame_time = 0
     new_frame_time = 0
+
+    def process_frame(frame):
+        # If a model is loaded, perform object detection
+        if current_model:
+            return detect_objects(frame)
+        return frame
 
     while cap.isOpened():
         success, frame = cap.read()
         if not success:
             break
 
+        # Submit the frame processing task to the thread pool
+        future = executor.submit(process_frame, frame)
+
+        # Get the processed frame
+        processed_frame = future.result()
+
         new_frame_time = time.time()
-
-        # Object detection with the current model
-        if current_model:
-            frame = detect_objects(frame)
-
         fps = 1 / (new_frame_time - prev_frame_time)
         prev_frame_time = new_frame_time
 
-        _, buffer = cv2.imencode(".jpg", frame)
+        _, buffer = cv2.imencode(".jpg", processed_frame)
         frame_base64 = base64.b64encode(buffer).decode("utf-8")
         yield f'data: {{"type": "frame", "data": "{frame_base64}"}}\n\n'
         yield f'data: {{"type": "fps", "data": "{fps:.2f}"}}\n\n'
