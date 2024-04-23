@@ -42,7 +42,7 @@
                     </select>
                     <button class="bg-blue-500 text-white font-medium py-1 px-3 rounded-lg hover:bg-blue-600 ml-4" onclick="loadModel()">Load Model</button>
                 </div>
-                
+                {% if camera_indices|length > 1 %}  <!-- Corrected conditional check -->
                 <h3 class="text-lg font-semibold mt-6">Primary Camera Selection</h3>
                 <div class="drop-btn-wrapper">
                     <select id="primary-camera-select" class="block w-9/10 p-2 border rounded-lg">
@@ -52,7 +52,6 @@
                     </select>
                     <button class="bg-green-500 text-white font-medium py-1 px-3 rounded-lg hover:bg-green-600 ml-4" onclick="setPrimaryCamera()">Set Primary Camera</button>
                 </div>
-                {% if camera_indices|length > 1 %}  <!-- Corrected conditional check -->
                 <div class="w-1/2 pl-6"> <!-- Secondary feed only if more than one camera -->
                     <h3 class="text-lg font-semibold mt-6">Secondary Video Feed</h3>
                     <img id="secondary-video-feed" alt="Secondary Video Feed" class="w-90 h-auto border rounded-lg shadow"> <!-- Smaller video feed -->

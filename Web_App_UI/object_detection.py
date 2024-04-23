@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 models_directory = "models"
 current_model = None
 model_type = None  # To track the current model type
-camera_indices = [0, 4]  # Known camera indexes
+camera_indices = [4]  # Known camera indexes
 
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 
