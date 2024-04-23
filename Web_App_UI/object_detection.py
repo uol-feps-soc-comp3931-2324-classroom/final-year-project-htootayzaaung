@@ -11,11 +11,12 @@ from detectron2 import model_zoo
 from ultralytics import YOLO
 from utility_functions import overlay, plot_one_box
 from concurrent.futures import ThreadPoolExecutor
+from face_blurring import blur_faces 
 
 models_directory = "models"
 current_model = None
 model_type = None  # To track the current model type
-camera_indices = [4]  # Known camera indexes
+camera_indices = [0, 4]  # Known camera indexes
 
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 
@@ -101,32 +102,39 @@ def detect_objects(frame):
     return frame
 
 def generate_frames(camera_index):
-    cap = cv2.VideoCapture(camera_index)
+    cap = cv2.VideoCapture(camera_index)  # Capture the camera feed
     prev_frame_time = 0
     new_frame_time = 0
 
     def process_frame(frame):
-        # If a model is loaded, perform object detection
+        # Apply facial blurring
+        blurred_frame = blur_faces(frame)
+
+        # If a model is loaded, perform object detection on blurred frames
         if current_model:
-            return detect_objects(frame)
-        return frame
+            return detect_objects(blurred_frame)  # Apply object detection after blurring
+        return blurred_frame  # If no model, just return blurred frame
 
     while cap.isOpened():
-        success, frame = cap.read()
+        success, frame = cap.read()  # Capture a frame
         if not success:
             break
 
         # Submit the frame processing task to the thread pool
         future = executor.submit(process_frame, frame)
+        processed_frame = future.result()  # Get the processed frame
 
-        # Get the processed frame
-        processed_frame = future.result()
-
+        # Calculate FPS
         new_frame_time = time.time()
         fps = 1 / (new_frame_time - prev_frame_time)
         prev_frame_time = new_frame_time
 
+        # Encode frame to JPEG and convert to base64
         _, buffer = cv2.imencode(".jpg", processed_frame)
         frame_base64 = base64.b64encode(buffer).decode("utf-8")
+
+        # Yield frame and FPS
         yield f'data: {{"type": "frame", "data": "{frame_base64}"}}\n\n'
         yield f'data: {{"type": "fps", "data": "{fps:.2f}"}}\n\n'
+
+    cap.release()  # Release the camera when done

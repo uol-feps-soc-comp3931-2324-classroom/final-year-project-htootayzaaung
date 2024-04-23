@@ -32,7 +32,7 @@ def handle_load_model():
 @app.route('/video_feed/<int:camera_index>')  # Corrected route definition
 def video_feed(camera_index):
     # Ensure valid camera index
-    if camera_index not in camera_indices :  # Validate against the list of known camera indexes
+    if camera_index not in camera_indices:  # Validate against the list of known camera indexes
         return "Invalid camera index", 400
 
     return Response(generate_frames(camera_index), mimetype='text/event-stream')
