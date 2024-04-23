@@ -41,6 +41,7 @@
                         {% endfor %}
                     </select>
                     <button class="bg-blue-500 text-white font-medium py-1 px-3 rounded-lg hover:bg-blue-600 ml-4" onclick="loadModel()">Load Model</button>
+                    <button class="bg-red-500 text-white font-medium py-1 px-3 rounded-lg hover:bg-red-600 ml-4" onclick="unloadModel()">Unload Model</button>
                 </div>
                 {% if camera_indices|length > 1 %}  <!-- Corrected conditional check -->
                 <h3 class="text-lg font-semibold mt-6">Primary Camera Selection</h3>

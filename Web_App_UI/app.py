@@ -5,7 +5,7 @@ import base64
 import cv2
 from ultralytics import YOLO
 from detectron2.utils.logger import setup_logger
-from object_detection import load_model, generate_frames, camera_indices  # Functions imported
+from object_detection import load_model, unload_model, generate_frames, camera_indices  # Functions imported
 
 setup_logger()
 
@@ -28,6 +28,11 @@ def handle_load_model():
     model_name = request.form.get('model_name')
     load_model(model_name)
     return "Model loaded successfully", 200
+
+@app.route('/unload_model', methods=['POST'])
+def handle_unload_model():
+    unload_model()
+    return "Model unloaded successfully", 200
 
 @app.route('/video_feed/<int:camera_index>')  # Corrected route definition
 def video_feed(camera_index):

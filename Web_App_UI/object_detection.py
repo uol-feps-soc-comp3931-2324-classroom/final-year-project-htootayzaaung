@@ -50,6 +50,11 @@ def load_model(model_name):
         current_model = None
         model_type = None
 
+def unload_model():
+    global current_model, model_type
+    current_model = None
+    model_type = None
+    print("Model has been unloaded.")
 
 def detect_objects(frame):
     if current_model is None:

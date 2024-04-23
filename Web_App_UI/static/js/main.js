@@ -13,6 +13,19 @@ function loadModel() {
     });
 }
 
+function unloadModel() {
+    $.ajax({
+        type: 'POST',
+        url: '/unload_model',
+        success: function(response) {
+            console.log('Model unloaded successfully');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error unloading model:', error);
+        }
+    });
+}
+
 function initVideoFeeds(cameraIndices) {
     const mainVideo = document.getElementById("main-video-feed");
     const secondaryVideo = document.getElementById("secondary-video-feed");
@@ -59,3 +72,5 @@ function setPrimaryCamera() {
 
     initVideoFeeds(newCameraIndices);
 }
+
+
