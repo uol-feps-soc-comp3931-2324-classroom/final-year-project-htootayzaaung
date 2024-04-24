@@ -30,6 +30,7 @@ function initVideoFeeds(cameraIndices) {
     const mainVideo = document.getElementById("main-video-feed");
     const secondaryVideo = document.getElementById("secondary-video-feed");
     const mainFpsDisplay = document.getElementById("main-fps-display");
+    const mainCoverageDisplay = document.getElementById("main-coverage-display");  // New coverage display
 
     window.sources = [];  // Initialize or clear existing sources
     window.cameraIndices = cameraIndices;  // Store the camera indices globally
@@ -48,6 +49,8 @@ function initVideoFeeds(cameraIndices) {
                 }
             } else if (data.type === "fps" && i === 0) {
                 mainFpsDisplay.innerText = `FPS: ${data.data}`;
+            } else if (data.type === "object_coverage" && i === 0) {  // New condition for object coverage
+                mainCoverageDisplay.innerText = `Object Coverage: ${parseFloat(data.data).toFixed(2)}%`;
             }
         };
 
@@ -72,4 +75,5 @@ function setPrimaryCamera() {
 
     initVideoFeeds(newCameraIndices);
 }
+
 
