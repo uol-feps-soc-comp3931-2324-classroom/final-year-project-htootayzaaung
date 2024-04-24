@@ -20,7 +20,7 @@
             </div>
             
             <div class="w-1/2 pl-6"> <!-- Right side for model selection -->
-                <h3 class="text-lg font-semibold">Model Selection</h3>
+                <h4 class="text-lg font-semibold">Model Selection</h4>
                 <div class="drop-btn-wrapper">
                     <select id="model-select" class="block w-9/10 p-2 border select-field"> <!-- Corrected field -->
                         {% for model_file in model_files %}
@@ -32,7 +32,7 @@
                 </div>
                 
                 {% if camera_indices|length > 1 %}
-                <h3 class="text-lg font-semibold mt-6">Primary Camera Selection</h3>
+                <h4 class="text-lg font-semibold mt-6">Primary Camera Selection</h4>
                 <div class="drop-btn-wrapper">
                     <select id="primary-camera-select" class="block w-9/10 p-2 border select-field">
                         {% for camera_index in camera_indices %}

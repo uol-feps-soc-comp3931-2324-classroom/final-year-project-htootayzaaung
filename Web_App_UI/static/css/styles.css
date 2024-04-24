@@ -12,36 +12,34 @@ body {
 .drop-btn-wrapper {
     display: flex;
     align-items: center;
-    margin-bottom: 1rem; /* Space between elements */
+    margin-bottom: 0.125rem; /* Halved to reduce vertical gap */
+    gap: 0.125rem; /* Halved to reduce horizontal gap */
 }
 
 .container {
-    padding: 1rem; /* Add padding to the container */
+    padding: 0.75rem; /* Reduced padding for container */
 }
 
-.select-field { /* Ensure dropdowns match the dark theme */
+.select-field {
     background-color: #333333; /* Dark background */
     color: #ffffff; /* Light text */
-    border-radius: 0; /* Remove rounded corners */
+    padding: 0.375rem; /* Decreased by roughly 25% */
+    font-size: 0.75rem; /* Decreased font size */
+    border-radius: 0; /* No rounded corners */
 }
 
-.video-feed { /* Fix borders to avoid white edges */
+.video-feed {
     border: 1px solid #1a1a1a; /* Dark border matching background */
     border-radius: 0; /* No rounded edges */
 }
 
-button {
-    transition: background-color 0.3s; /* Smooth hover transition */
-    border-radius: 0; /* Ensure no rounded corners on buttons */
-}
-
 .button {
-    background-color: #333333; /* Dark gray color for all buttons */
-    color: #ffffff; /* White text for contrast */
-    padding: 0.5rem 1rem; /* Padding for a comfortable button size */
-    border: 1px solid #1a1a1a; /* Border to match the background */
-    transition: background-color 0.3s; /* Smooth transition on hover */
-    text-align: center; /* Center the text */
+    background-color: #333333;
+    color: #ffffff;
+    padding: 0.375rem; /* Decreased by roughly 25% */
+    font-size: 0.75rem; /* Decreased font size by 25% */
+    margin-left: 0.125rem; /* Reduced margin for closer alignment */
+    text-align: center;
     border-radius: 0; /* No rounded corners */
 }
 
