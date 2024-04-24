@@ -4,25 +4,29 @@ import cv2
 import base64
 import numpy as np
 import random
+import time
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2 import model_zoo
-import time
-import ultralytics
 from ultralytics import YOLO
+from utility_functions import overlay, plot_one_box
+from concurrent.futures import ThreadPoolExecutor
+from face_blurring import blur_faces 
 
 models_directory = "models"
 current_model = None
 model_type = None  # To track the current model type
+camera_indices = [0, 4]  # Known camera indexes
 
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 
+executor = ThreadPoolExecutor(max_workers=8)  # Adjust as needed
+
 def load_model(model_name):
-    global current_model, model_type  # Declare as global
+    global current_model, model_type
     model_path = os.path.join(models_directory, model_name)
 
     if model_name.endswith('.pth') and 'detectron' in model_name.lower():
-        # Detectron2 model
         cfg = get_cfg()
         cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
         cfg.MODEL.WEIGHTS = model_path
@@ -34,7 +38,6 @@ def load_model(model_name):
         print(f"Loaded Detectron2 model: {model_path}")
 
     elif model_name.endswith('.pt') and 'yolov' in model_name.lower():
-        # YOLO model
         if 'segmentation' in model_name.lower():
             model_type = 'yolo_segmentation'
         else:
@@ -43,39 +46,21 @@ def load_model(model_name):
         print(f"Loaded YOLO model: {model_path}")
 
     else:
-        # Unsupported model
         print(f"Unsupported model format: {model_path}")
         current_model = None
         model_type = None
 
-def overlay(image, mask, color, alpha, resize=None):
-    colored_mask = np.expand_dims(mask, 0).repeat(3, axis=0)
-    colored_mask = np.moveaxis(colored_mask, 0, -1)
-    masked = np.ma.MaskedArray(image, mask=colored_mask, fill_value=color)
-    image_overlay = masked.filled()
-
-    if resize is not None:
-        image = cv2.resize(image.transpose(1, 2, 0), resize)
-        image_overlay = cv2.resize(image_overlay.transpose(1, 2, 0), resize)
-
-    image_combined = cv2.addWeighted(image, 1 - alpha, image_overlay, alpha, 0)
-
-    return image_combined
-
-def plot_one_box(x, img, color=None, label=None, line_thickness=3):
-    tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line/font thickness
-    color = color or [random.randint(0, 255) for _ in range(3)]
-    c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
-    cv2.rectangle(img, c1, c2, color, thickness=tl, lineType=cv2.LINE_AA)
-    if label:
-        tf = max(tl - 1, 1)  # font thickness
-        t_size = cv2.getTextSize(label, 0, fontScale=tl / 3, thickness=tf)[0]
-        c2 = c1[0] + t_size[0], c1[1] - t_size[1] - 3
-        cv2.rectangle(img, c1, c2, color, -1, cv2.LINE_AA)  # filled
-        cv2.putText(img, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
+def unload_model():
+    global current_model, model_type
+    current_model = None
+    model_type = None
+    print("Model has been unloaded.")
 
 def detect_objects(frame):
-    if isinstance(current_model, DefaultPredictor):  # Check if current_model is a Detectron2 model
+    if current_model is None:
+        return frame  # If no model is loaded, return the original frame
+
+    if isinstance(current_model, DefaultPredictor):
         outputs = current_model(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         instances = outputs["instances"].to("cpu")
         if instances.has("pred_boxes"):
@@ -88,7 +73,7 @@ def detect_objects(frame):
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-    if model_type == 'yolo_detection':
+    elif model_type == 'yolo_detection':
         results = current_model(frame, stream=True)
         for r in results:
             boxes = r.boxes
@@ -98,7 +83,7 @@ def detect_objects(frame):
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
                     label = current_model.names[int(box.cls[0])]
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 3)
-                    cv2.putText(frame, f'{label}: {confidence:.2f}', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, f"{label}: {confidence:.2f}", (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
     elif model_type == 'yolo_segmentation':
         results = current_model(frame, stream=True)
@@ -114,32 +99,47 @@ def detect_objects(frame):
                     seg = cv2.resize(seg, (frame.shape[1], frame.shape[0]))
                     frame = overlay(frame, seg, color, 0.4)
                     xmin = int(box.data[0][0])
-                    ymin = int (box.data[0][1])
+                    ymin = int(box.data[0][1])
                     xmax = int(box.data[0][2])
                     ymax = int(box.data[0][3])
-                    plot_one_box([xmin, ymin, xmax, ymax], frame, color, f'{class_names[int(box.cls)]} {float(box.conf):.2f}')
+                    plot_one_box([xmin, ymin, xmax, ymax], frame, color, f"{class_names[int(box.cls)]} {float(box.conf):.2f}")
+    
     return frame
 
-def generate_frames():
-    cap = cv2.VideoCapture(0)
+def generate_frames(camera_index):
+    cap = cv2.VideoCapture(camera_index)  # Capture the camera feed
     prev_frame_time = 0
     new_frame_time = 0
 
+    def process_frame(frame):
+        # Apply facial blurring
+        blurred_frame = blur_faces(frame)
+
+        # If a model is loaded, perform object detection on blurred frames
+        if current_model:
+            return detect_objects(blurred_frame)  # Apply object detection after blurring
+        return blurred_frame  # If no model, just return blurred frame
+
     while cap.isOpened():
-        success, frame = cap.read()
+        success, frame = cap.read()  # Capture a frame
         if not success:
             break
 
+        # Submit the frame processing task to the thread pool
+        future = executor.submit(process_frame, frame)
+        processed_frame = future.result()  # Get the processed frame
+
+        # Calculate FPS
         new_frame_time = time.time()
-
-        # Perform object detection based on the selected model
-        if current_model:
-            frame = detect_objects(frame)
-
         fps = 1 / (new_frame_time - prev_frame_time)
         prev_frame_time = new_frame_time
 
-        _, buffer = cv2.imencode('.jpg', frame)
-        frame_base64 = base64.b64encode(buffer).decode('utf-8')
-        yield f'data: {{ "type": "frame", "data": "{frame_base64}" }}\n\n'  # Video frame event
-        yield f'data: {{ "type": "fps", "data": "{fps:.2f}" }}\n\n'  # FPS event
+        # Encode frame to JPEG and convert to base64
+        _, buffer = cv2.imencode(".jpg", processed_frame)
+        frame_base64 = base64.b64encode(buffer).decode("utf-8")
+
+        # Yield frame and FPS
+        yield f'data: {{"type": "frame", "data": "{frame_base64}"}}\n\n'
+        yield f'data: {{"type": "fps", "data": "{fps:.2f}"}}\n\n'
+
+    cap.release()  # Release the camera when done
