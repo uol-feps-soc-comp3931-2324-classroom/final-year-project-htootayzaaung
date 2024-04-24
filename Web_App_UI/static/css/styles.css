@@ -1,0 +1,50 @@
+body {
+    background-color: #1a1a1a; /* Dark background */
+    color: #8fc605; /* Light text color */
+}
+
+.fps-display {
+    font-weight: bold;
+    font-size: 1.5rem; /* Larger font for better readability */
+    color: #8fc605; /* Highlight color for FPS */
+}
+
+.drop-btn-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem; /* Space between elements */
+}
+
+.container {
+    padding: 1rem; /* Add padding to the container */
+}
+
+.select-field { /* Ensure dropdowns match the dark theme */
+    background-color: #333333; /* Dark background */
+    color: #ffffff; /* Light text */
+    border-radius: 0; /* Remove rounded corners */
+}
+
+.video-feed { /* Fix borders to avoid white edges */
+    border: 1px solid #1a1a1a; /* Dark border matching background */
+    border-radius: 0; /* No rounded edges */
+}
+
+button {
+    transition: background-color 0.3s; /* Smooth hover transition */
+    border-radius: 0; /* Ensure no rounded corners on buttons */
+}
+
+.button {
+    background-color: #333333; /* Dark gray color for all buttons */
+    color: #ffffff; /* White text for contrast */
+    padding: 0.5rem 1rem; /* Padding for a comfortable button size */
+    border: 1px solid #1a1a1a; /* Border to match the background */
+    transition: background-color 0.3s; /* Smooth transition on hover */
+    text-align: center; /* Center the text */
+    border-radius: 0; /* No rounded corners */
+}
+
+.button:hover {
+    background-color: #444444; /* Slightly lighter on hover */
+}
