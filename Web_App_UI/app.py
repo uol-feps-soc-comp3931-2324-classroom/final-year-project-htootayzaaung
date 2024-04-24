@@ -42,5 +42,9 @@ def video_feed(camera_index):
 
     return Response(generate_frames(camera_index), mimetype='text/event-stream')
 
+@app.route('/comprehensive_stats')
+def comprehensive_stats():
+    return render_template('comprehensive_stats.html', camera_indices=camera_indices)
+
 if __name__ == '__main__':
     app.run(debug=True, threaded=True)  # Start the Flask server

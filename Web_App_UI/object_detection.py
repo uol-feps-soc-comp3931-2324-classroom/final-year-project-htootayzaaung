@@ -64,6 +64,12 @@ def detect_objects(frame):
     if current_model is None:
         return frame, 0  # Return original frame and 0% coverage
 
+    # Ensure non-negative bounding box areas
+    def correct_coordinates(x1, x2, y1, y2):
+        x1, x2 = min(x1, x2), max(x1, x2)
+        y1, y2 = min(y1, y2), max(y1, y2)
+        return x1, x2, y1, y2
+
     if isinstance(current_model, DefaultPredictor):
         outputs = current_model(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         instances = outputs["instances"].to("cpu")
@@ -73,8 +79,9 @@ def detect_objects(frame):
             classes = instances.pred_classes.numpy()
             for box, score, class_idx in zip(boxes, scores, classes):
                 x1, y1, x2, y2 = box.astype(int)
+                x1, x2, y1, y2 = correct_coordinates(x1, x2, y1, y2)  # Ensure correct coordinates
                 box_area = (x2 - x1) * (y2 - y1)  # Calculate bounding box area
-                total_box_area += box_area  # Sum total box areas
+                total_box_area += max(0, box_area)  # Ensure non-negative box areas
                 
                 label = f"{DETECTRON2_CLASS_NAMES[class_idx]}: {score:.2f}"
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -88,8 +95,9 @@ def detect_objects(frame):
                 confidence = box.conf[0]
                 if confidence >= 0.6:
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    x1, x2, y1, y2 = correct_coordinates(x1, x2, y1, y2)  # Ensure correct coordinates
                     box_area = (x2 - x1) * (y2 - y1)  # Calculate bounding box area
-                    total_box_area += box_area  # Sum total box areas
+                    total_box_area += max(0, box_area)  # Ensure non-negative box areas
                     
                     label = current_model.names[int(box.cls[0])]
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 3)
@@ -108,18 +116,17 @@ def detect_objects(frame):
                     color = colors[int(box.cls)]
                     seg = cv2.resize(seg, (frame.shape[1], frame.shape[0]))
                     frame = overlay(frame, seg, color, 0.4)
-                    xmin = int(box.data[0][0])
-                    ymin = int(box.data[0][1])
-                    xmax = int(box.data[0][3])
-                    ymax = int(box.data[0][4])
+
+                    xmin, ymin, xmax, ymax = map(int, box.xyxy[0])
+                    xmin, xmax, ymin, ymax = correct_coordinates(xmin, xmax, ymin, ymax)  # Ensure correct coordinates
                     box_area = (xmax - xmin) * (ymax - ymin)  # Calculate bounding box area
-                    total_box_area += box_area  # Sum total box areas
+                    total_box_area += max(0, box_area)  # Ensure non-negative box areas
 
                     plot_one_box([xmin, ymin, xmax, ymax], frame, color, f"{class_names[int(box.cls)]} {float(box.conf):.2f}")
     
     # Calculate object coverage percentage
-    object_coverage = (total_box_area / total_camera_area) * 100
-    return frame, object_coverage
+    object_coverage = (total_box_area / total_camera_area) * 100 if total_camera_area > 0 else 0  # Ensure positive coverage
+    return frame, object_coverage  # Return frame and object coverage
 
 def generate_frames(camera_index):
     cap = cv2.VideoCapture(camera_index)  # Capture the camera feed
