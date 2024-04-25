@@ -36,22 +36,30 @@
         </div>
 
         <!-- Table for statistics -->
+        <h4 class="text-lg font-semibold">Image Information</h4>
         <table class="min-w-full leading-normal"> <!-- Consistent table styling -->
             <thead>
                 <tr>
-                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Camera Index
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 tracking-wider">
+                        CAMERA-INDEX
                     </th>
-                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 tracking-wider">
                         FPS
                     </th>
-                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Object Coverage
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 tracking-wider">
+                        OBJECT-AREA COVERAGE
+                    </th>
+                    <!-- New Columns -->
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 tracking-wider">
+                        CAMERA DIMENSIONS (W x H)(pixels)
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 tracking-wider">
+                        BOUNDING-BOX DIMENSIONS (List)(W x H)(pixels)
                     </th>
                 </tr>
             </thead>
-            <tbody id="camera-stats-body"> <!-- Placeholder for JavaScript to populate -->
-                <!-- JavaScript will populate this with relevant data -->
+            <tbody id="camera-stats-body"> <!-- JavaScript will populate this -->
+                <!-- This section will be filled by initComprehensiveStats in main.js -->
             </tbody>
         </table>
     </div>

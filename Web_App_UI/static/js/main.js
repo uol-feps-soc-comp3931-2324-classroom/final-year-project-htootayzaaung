@@ -4,7 +4,7 @@ function loadModel() {
         type: 'POST',
         url: '/load_model',
         data: { model_name: model_name },
-        success: function(response) {
+        success: function() {
             console.log('Model loaded successfully');
         },
         error: function(xhr, status, error) {
@@ -17,7 +17,7 @@ function unloadModel() {
     $.ajax({
         type: 'POST',
         url: '/unload_model',
-        success: function(response) {
+        success: function() {
             console.log('Model unloaded successfully');
         },
         error: function(xhr, status, error) {
@@ -29,7 +29,7 @@ function unloadModel() {
 function initComprehensiveStats(cameraIndices) {
     const statsBody = document.getElementById("camera-stats-body");
 
-    // Clear existing rows to avoid duplication or misalignment
+    // Clear existing rows to avoid duplication
     while (statsBody.firstChild) {
         statsBody.removeChild(statsBody.firstChild);
     }
@@ -38,35 +38,54 @@ function initComprehensiveStats(cameraIndices) {
         const row = document.createElement("tr");  // Create a new row
         const indexCell = document.createElement("td");
         indexCell.innerText = index;  // Camera index
-        row.appendChild(indexCell);  // Add index to the row
+        row.appendChild(indexCell);  // Add to row
 
-        const fpsCell = document.createElement("td");  // FPS cell
-        const coverageCell = document.createElement("td");  // Object coverage cell
+        const fpsCell = document.createElement("td");
+        const coverageCell = document.createElement("td");
+        const camDimensionCell = document.createElement("td");  // New column for camera dimensions
+        const bboxDimensionCell = document.createElement("td");  // New column for bounding box dimensions
 
         row.appendChild(fpsCell);
         row.appendChild(coverageCell);
-        statsBody.appendChild(row);  // Add row to the table
+        row.appendChild(camDimensionCell);  // Add to row
+        row.appendChild(bboxDimensionCell);  // Add to row
+        statsBody.appendChild(row);  // Add row to table
 
-        const source = new EventSource(`/video_feed/${index}`);  // EventSource for each camera
+        const source = new EventSource(`/video_feed/${index}`);  // EventSource for camera index
 
         source.onmessage = function(event) {
             const data = JSON.parse(event.data);
 
+            // Handle frame
             if (data.type === "frame") {
-                const videoFeed = document.getElementById(`camera-feed-${index}`);  // Get the correct camera feed
+                const videoFeed = document.getElementById(`camera-feed-${index}`);  // Correct camera feed
                 const img = document.createElement("img");
-                img.src = "data:image/jpeg;base64," + data.data;  // Set the video feed
+                img.src = "data:image/jpeg;base64," + data.data;  // Frame image data
                 img.alt = `Camera ${index}`;
-                img.style.width = "100%";  // Full width to fit in grid
+                img.style.width = "100%";  // Ensure proper display
                 img.style.height = "auto";  // Maintain aspect ratio
-                videoFeed.innerHTML = "";  // Clear previous content
+                videoFeed.innerHTML = "";  // Clear old content
                 videoFeed.appendChild(img);
             }
 
+            // Handle FPS updates
             if (data.type === "fps") {
                 fpsCell.innerText = `${data.data}`;  // Update FPS
-            } else if (data.type === "object_coverage") {
+            }
+
+            // Handle object coverage
+            if (data.type === "object_coverage") {
                 coverageCell.innerText = `${parseFloat(data.data).toFixed(2)}%`;  // Update object coverage
+            }
+
+            // Handle camera dimensions
+            if (data.type === "camera_dimensions") {
+                camDimensionCell.innerText = `${data.data}`;  // Update camera dimensions
+            }
+
+            // Handle bounding box dimensions
+            if (data.type === "bbox_dimensions") {
+                bboxDimensionCell.innerText = `${data.data}`;  // Display all bounding box dimensions
             }
         };
 
@@ -75,4 +94,3 @@ function initComprehensiveStats(cameraIndices) {
         };
     });
 }
-
