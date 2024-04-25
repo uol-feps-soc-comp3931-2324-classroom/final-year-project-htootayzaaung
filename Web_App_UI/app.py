@@ -5,13 +5,14 @@ import base64
 import cv2
 from ultralytics import YOLO
 from detectron2.utils.logger import setup_logger
-from object_detection import load_model, unload_model, generate_frames, camera_indices  # Functions imported
+from object_detection import load_model, unload_model, generate_frames  # Functions imported
 
 setup_logger()
 
 app = Flask(__name__)
 app.jinja_env.autoescape = True 
 models_directory = "models"
+camera_indices = [0, 4]  # Known camera indexes
 
 @app.route('/')
 def index():
