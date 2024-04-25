@@ -142,35 +142,39 @@ def detect_objects(frame):
     return frame, object_coverage, bbox_dimensions  # Return frame, object coverage, and bounding box dimensions
 
 
+# Generator function to stream frames and data
 def generate_frames(camera_index):
-    cap = cv2.VideoCapture(camera_index)  # Start capturing from the camera
-    prev_frame_time = 0  # For calculating FPS
+    cap = cv2.VideoCapture(camera_index)  # Start camera capture
+    prev_frame_time = 0  # For FPS calculation
     new_frame_time = 0
 
-    # Check if the camera opened successfully
+    # Check if the camera opens successfully
     if not cap.isOpened():
-        return "Error opening camera", 500  # Handle camera open errors
+        return "Error opening camera", 500  # Error handling
 
     while cap.isOpened():
         success, frame = cap.read()  # Capture a frame
         if not success:
-            break  # Stop if frame capture fails
+            break  # Exit if frame capture fails
+
+        # Apply facial blurring before other processing
+        blurred_frame = blur_faces(frame)  # New: Apply facial blurring
 
         # Submit frame processing to the thread pool
-        future = executor.submit(detect_objects, frame)  # Object detection processing
-        processed_frame, object_coverage, bbox_dimensions = future.result()  # Get processed data
+        future = executor.submit(detect_objects, blurred_frame)  # Object detection after blurring
+        processed_frame, object_coverage, bbox_dimensions = future.result()  # Get results
 
         # Calculate FPS
         new_frame_time = time.time()
         fps = 1 / (new_frame_time - prev_frame_time)
         prev_frame_time = new_frame_time
 
-        # Encode processed frame to JPEG and convert to base64
+        # Encode to JPEG and convert to base64
         _, buffer = cv2.imencode(".jpg", processed_frame)
         frame_base64 = base64.b64encode(buffer).decode("utf-8")
 
         # Extract camera dimensions
-        frame_height, frame_width, _ = frame.shape  # Camera feed dimensions
+        frame_height, frame_width, _ = frame.shape
         camera_dimensions = f"{frame_width} × {frame_height}"
 
         # Send frame, FPS, object coverage, camera dimensions, and bounding box dimensions
@@ -178,7 +182,7 @@ def generate_frames(camera_index):
         yield f'data: {{"type": "fps", "data": "{fps:.2f}"}}\n\n'
         yield f'data: {{"type": "object_coverage", "data": "{object_coverage:.2f}"}}\n\n'
         yield f'data: {{"type": "camera_dimensions", "data": "{camera_dimensions}"}}\n\n'
-        yield f'data: {{"type": "bbox_dimensions", "data": "{bbox_dimensions}"}}\n\n'  # New addition
+        yield f'data: {{"type": "bbox_dimensions", "data": "{bbox_dimensions}"}}\n\n'
 
-    # Release the camera resource
-    cap.release()
+    # Release camera resource
+    cap.release()  # Release the camera
