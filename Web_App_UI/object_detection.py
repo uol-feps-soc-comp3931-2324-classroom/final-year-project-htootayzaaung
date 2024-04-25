@@ -16,7 +16,6 @@ from face_blurring import blur_faces
 models_directory = "models"
 current_model = None
 model_type = None  # To track the current model type
-camera_indices = [0, 4]  # Known camera indexes
 
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 

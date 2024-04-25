@@ -26,54 +26,53 @@ function unloadModel() {
     });
 }
 
-function initVideoFeeds(cameraIndices) {
-    const mainVideo = document.getElementById("main-video-feed");
-    const secondaryVideo = document.getElementById("secondary-video-feed");
-    const mainFpsDisplay = document.getElementById("main-fps-display");
-    const mainCoverageDisplay = document.getElementById("main-coverage-display");  // New coverage display
+function initComprehensiveStats(cameraIndices) {
+    const statsBody = document.getElementById("camera-stats-body");
 
-    window.sources = [];  // Initialize or clear existing sources
-    window.cameraIndices = cameraIndices;  // Store the camera indices globally
+    // Clear existing rows to avoid duplication or misalignment
+    while (statsBody.firstChild) {
+        statsBody.removeChild(statsBody.firstChild);
+    }
 
-    // Initialize EventSources for cameras
-    cameraIndices.forEach((index, i) => {
-        const source = new EventSource(`/video_feed/${index}`);
+    cameraIndices.forEach((index) => {
+        const row = document.createElement("tr");  // Create a new row
+        const indexCell = document.createElement("td");
+        indexCell.innerText = index;  // Camera index
+        row.appendChild(indexCell);  // Add index to the row
+
+        const fpsCell = document.createElement("td");  // FPS cell
+        const coverageCell = document.createElement("td");  // Object coverage cell
+
+        row.appendChild(fpsCell);
+        row.appendChild(coverageCell);
+        statsBody.appendChild(row);  // Add row to the table
+
+        const source = new EventSource(`/video_feed/${index}`);  // EventSource for each camera
 
         source.onmessage = function(event) {
             const data = JSON.parse(event.data);
+
             if (data.type === "frame") {
-                if (i === 0) {  // Primary feed
-                    mainVideo.src = "data:image/jpeg;base64," + data.data;
-                } else {  // Secondary feed
-                    secondaryVideo.src = "data:image/jpeg;base64," + data.data;
-                }
-            } else if (data.type === "fps" && i === 0) {
-                mainFpsDisplay.innerText = `FPS: ${data.data}`;
-            } else if (data.type === "object_coverage" && i === 0) {  // New condition for object coverage
-                mainCoverageDisplay.innerText = `Object Coverage: ${parseFloat(data.data).toFixed(2)}%`;
+                const videoFeed = document.getElementById(`camera-feed-${index}`);  // Get the correct camera feed
+                const img = document.createElement("img");
+                img.src = "data:image/jpeg;base64," + data.data;  // Set the video feed
+                img.alt = `Camera ${index}`;
+                img.style.width = "100%";  // Full width to fit in grid
+                img.style.height = "auto";  // Maintain aspect ratio
+                videoFeed.innerHTML = "";  // Clear previous content
+                videoFeed.appendChild(img);
+            }
+
+            if (data.type === "fps") {
+                fpsCell.innerText = `${data.data}`;  // Update FPS
+            } else if (data.type === "object_coverage") {
+                coverageCell.innerText = `${parseFloat(data.data).toFixed(2)}%`;  // Update object coverage
             }
         };
 
         source.onerror = function() {
-            console.error(`Error with event source for camera index ${index}`);
+            console.error(`Error with EventSource for camera index ${index}`);  // Handle errors
         };
-
-        window.sources.push(source);
     });
 }
-
-
-function setPrimaryCamera() {
-    const primaryIndex = parseInt(document.getElementById('primary-camera-select').value);
-
-    // Close current EventSources
-    window.sources.forEach(source => source.close());
-
-    // Update sources to new primary and secondary feeds
-    const newPrimaryIndex = window.cameraIndices.indexOf(primaryIndex);
-    const newCameraIndices = [primaryIndex, ...window.cameraIndices.filter(index => index !== primaryIndex)];
-
-    initVideoFeeds(newCameraIndices);
-}
-
 

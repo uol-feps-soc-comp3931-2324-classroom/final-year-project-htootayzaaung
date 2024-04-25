@@ -2,60 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Real-time Object Detection</title>
-    <link rel="stylesheet" href="/static/css/styles.css"> <!-- Link the CSS file -->
+    <title>Comprehensive Statistics</title>
+    <link rel="stylesheet" href="/static/css/styles.css"> <!-- Ensure CSS is linked -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"> <!-- Tailwind CSS for consistency -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> <!-- jQuery -->
     <script src="/static/js/main.js"></script> <!-- Main JavaScript -->
 </head>
-<body onload="initVideoFeeds({{ camera_indices|tojson }});"> <!-- JavaScript initialization -->
+<body onload="initComprehensiveStats({{ camera_indices|tojson }});"> <!-- Ensure JavaScript initialization -->
     <div class="container mx-auto px-4 py-8"> <!-- Consistent container styling -->
-        <h1 class="text-center text-3xl font-bold mb-8">Weapon-Detection in a Surveillance System</h1> <!-- Heading style -->
+        <h1 class="text-center text-xl font-bold mb-8">GuardLens: Real-time Weapon Detection System</h1> <!-- Consistent heading style -->
 
-        <div class="flex flex-row"> <!-- Horizontal layout -->
-            <div class="w-1/2"> <!-- Left side for the primary video feed -->
-                <h3 class="text-lg font-semibold">Primary Video Feed</h3>
-                <img id="main-video-feed" class="w-full h-auto video-feed" alt="Main Video Feed"> <!-- Primary video -->
-                <div class="fps-display mt-4" id="main-fps-display">FPS: --</div> <!-- Placeholder for FPS -->
-                <div class="coverage-display mt-4" id="main-coverage-display">Object Coverage: --</div> <!-- Placeholder for coverage -->
+        <!-- Grid for camera feeds with dynamic labels -->
+        <div class="grid grid-cols-2 gap-4"> <!-- Adjust grid layout as needed -->
+            {% for camera_index in camera_indices %}
+            <div>
+                <h3 class="text-center">Camera {{ camera_index }}</h3> <!-- Dynamic camera label -->
+                <div class="camera-feed" id="camera-feed-{{ camera_index }}"> <!-- Dynamic ID -->
+                    <!-- JavaScript will populate this -->
+                </div>
             </div>
-
-            <div class="w-1/2 pl-6"> <!-- Right side for model selection -->
-                <h4 class="text-lg font-semibold">Model Selection</h4>
-                <div class="drop-btn-wrapper">
-                    <select id="model-select" class="block w-9/10 p-2 border select-field"> <!-- Dropdown for model selection -->
-                        {% for model_file in model_files %}
-                        <option value="{{ model_file }}">{{ model_file }}</option> <!-- Dynamic models -->
-                        {% endfor %}
-                    </select>
-                    <button class="button" onclick="loadModel()">Load Model</button> <!-- Load model -->
-                    <button class="button" onclick="unloadModel()">Unload Model</button> <!-- Unload model -->
-                </div>
-
-                {% if camera_indices|length > 1 %}
-                <h4 class="text-lg font-semibold mt-6">Primary Camera Selection</h4>
-                <div class="drop-btn-wrapper">
-                    <select id="primary-camera-select" class="block w-9/10 p-2 border select-field"> <!-- Dropdown for cameras -->
-                        {% for camera_index in camera_indices %}
-                        <option value="{{ camera_index }}">Camera {{ camera_index }}</option> <!-- Dynamic camera indices -->
-                        {% endfor %}
-                    </select>
-                    <button class="button" onclick="setPrimaryCamera()">Set Primary Camera</button> <!-- Set primary camera -->
-                    <button class="button" onclick="window.location.href='/comprehensive_stats'">View All-cameras</button> <!-- Navigate to comprehensive stats -->
-                </div>
-                {% endif %}
-
-                {% if camera_indices|length > 1 %}
-                <!-- Scrollable container for secondary video feeds -->
-                <div class="overflow-y-scroll" style="height: 500px;"> <!-- Set fixed height with vertical scroll -->
-                    <div class="secondary-video"> <!-- Adjusted positioning -->
-                        <h3 class="text-lg font-semibold mt-6">Secondary Video Feed</h3> <!-- Heading for secondary video -->
-                        <img id="secondary-video-feed" alt="Secondary Video Feed" class="w-90 h-auto video-feed"> <!-- Video feed for secondary camera -->
-                    </div>
-                </div>
-                {% endif %}
-            </div>
+            {% endfor %}
         </div>
+
+        <h4 class="text-lg font-semibold">Model Selection</h4>
+        <div class="drop-btn-wrapper">
+            <select id="model-select" class="block w-9/10 p-2 border select-field"> <!-- Dropdown for model selection -->
+                {% for model_file in model_files %}
+                <option value="{{ model_file }}">{{ model_file }}</option> <!-- Dynamic models -->
+                {% endfor %}
+            </select>
+            <button class="button" onclick="loadModel()">Load Model</button> <!-- Load model -->
+            <button class="button" onclick="unloadModel()">Unload Model</button> <!-- Unload model -->
+        </div>
+
+        <!-- Table for statistics -->
+        <table class="min-w-full leading-normal"> <!-- Consistent table styling -->
+            <thead>
+                <tr>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Camera Index
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        FPS
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                        Object Coverage
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="camera-stats-body"> <!-- Placeholder for JavaScript to populate -->
+                <!-- JavaScript will populate this with relevant data -->
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
