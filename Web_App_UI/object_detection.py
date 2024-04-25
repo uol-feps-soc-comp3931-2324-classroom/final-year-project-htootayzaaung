@@ -106,9 +106,10 @@ def detect_objects(frame):
                     # New: Add bounding box dimensions
                     bbox_dimensions.append(f"{x2 - x1} × {y2 - y1}")
                     
-                    label = current_model.names[int(box.cls[0])]
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 3)  # Draw box
-                    cv2.putText(frame, f"{label}: {confidence:.2f}", (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)  # Draw label
+                    if current_model is not None:
+                        label = current_model.names[int(box.cls[0])]
+                        cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 3)  # Draw box
+                        cv2.putText(frame, f"{label}: {confidence:.2f}", (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)  # Draw label
 
     elif model_type == 'yolo_segmentation':
         results = current_model(frame, stream=True)

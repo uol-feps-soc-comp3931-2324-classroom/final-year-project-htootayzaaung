@@ -22,9 +22,9 @@
                 </div>
             </div>
             {% endfor %}
-        </div>
+        </div><br>
 
-        <h4 class="text-lg font-semibold">Model Selection</h4>
+        <h4>Model Selection</h4>
         <div class="drop-btn-wrapper">
             <select id="model-select" class="block w-9/10 p-2 border select-field"> <!-- Dropdown for model selection -->
                 {% for model_file in model_files %}
@@ -33,10 +33,10 @@
             </select>
             <button class="button" onclick="loadModel()">Load Model</button> <!-- Load model -->
             <button class="button" onclick="unloadModel()">Unload Model</button> <!-- Unload model -->
-        </div>
+        </div><br>
 
         <!-- Table for statistics -->
-        <h4 class="text-lg font-semibold">Image Information</h4>
+        <h4>Image Information</h4>
         <table class="min-w-full leading-normal"> <!-- Consistent table styling -->
             <thead>
                 <tr>
