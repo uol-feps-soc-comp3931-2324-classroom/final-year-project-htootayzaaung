@@ -46,3 +46,13 @@ body {
 .button:hover {
     background-color: #444444; /* Slightly lighter on hover */
 }
+
+/* Add borders to table cells */
+table {
+    border-collapse: collapse;  /* Ensures borders are seamless */
+}
+
+table th, table td {
+    border: 1px solid #333333;  /* Border color and thickness */
+    padding: 8px;  /* Padding for consistent spacing */
+}
