@@ -23,21 +23,22 @@ def detect_objects(frame, current_model, model_type):
             classes = instances.pred_classes.numpy()
 
             for box, score, class_idx in zip(boxes, scores, classes):
-                x1, y1, x2, y2 = box.astype(int)
-                x1, x2, y1, y2 = correct_coordinates(x1, x2, y1, y2)  # Ensure correct coordinates
-                box_area = (x2 - x1) * (y2 - y1)
-                total_box_area += max(0, box_area)
+                if score >= 0.6:
+                    x1, y1, x2, y2 = box.astype(int)
+                    x1, x2, y1, y2 = correct_coordinates(x1, x2, y1, y2)  # Ensure correct coordinates
+                    box_area = (x2 - x1) * (y2 - y1)
+                    total_box_area += max(0, box_area)
 
-                # Store bounding box dimensions
-                bbox_dimensions.append(f"{x2 - x1} × {y2 - y1}")
+                    # Store bounding box dimensions
+                    bbox_dimensions.append(f"{x2 - x1} × {y2 - y1}")
                 
-                class_name = DETECTRON2_CLASS_NAMES[class_idx]
-                class_color = CLASS_COLORS[class_name]  # Obtain the specific class color
+                    class_name = DETECTRON2_CLASS_NAMES[class_idx]
+                    class_color = CLASS_COLORS[class_name]  # Obtain the specific class color
                 
-                cv2.rectangle(frame, (x1, y1), (x2, y2), class_color, STANDARD_BORDER_THICKNESS)
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), class_color, STANDARD_BORDER_THICKNESS)
                 
-                label = f"{class_name}: {score:.2f}"
-                draw_label_with_background(frame, label, (x1, y1), class_name)  # Draw label with consistent background
+                    label = f"{class_name}: {score:.2f}"
+                    draw_label_with_background(frame, label, (x1, y1), class_name)  # Draw label with consistent background
 
     elif model_type == 'yolo_detection':
         if current_model is not None:
@@ -72,22 +73,23 @@ def detect_objects(frame, current_model, model_type):
             if masks is not None:
                 masks = masks.data.cpu()  # Ensure on CPU
                 for seg, box in zip(masks.data.cpu().numpy(), boxes):
-                    class_name = class_names[int(box.cls)]
-                    class_color = CLASS_COLORS[class_name]  # Consistent class-specific color
+                    if box.conf[0] >= 0.6:
+                        class_name = class_names[int(box.cls)]
+                        class_color = CLASS_COLORS[class_name]  # Consistent class-specific color
                     
-                    seg = cv2.resize(seg, (frame.shape[1], frame.shape[0]))
-                    frame = overlay(frame, seg, class_color, 0.4)  # Apply the consistent overlay color
+                        seg = cv2.resize(seg, (frame.shape[1], frame.shape[0]))
+                        frame = overlay(frame, seg, class_color, 0.4)  # Apply the consistent overlay color
 
-                    xmin, ymin, xmax, ymax = map(int, box.xyxy[0])
-                    xmin, xmax, ymin, ymax = correct_coordinates(xmin, xmax, ymin, ymax)  # Correct coordinates
-                    box_area = (xmax - xmin) * (ymax - ymin)
-                    total_box_area += max(0, box_area)
+                        xmin, ymin, xmax, ymax = map(int, box.xyxy[0])
+                        xmin, xmax, ymin, ymax = correct_coordinates(xmin, xmax, ymin, ymax)  # Correct coordinates
+                        box_area = (xmax - xmin) * (ymax - ymin)
+                        total_box_area += max(0, box_area)
 
-                    # Add bounding box dimensions
-                    bbox_dimensions.append(f"{xmax - xmin} × {ymax - ymin}")
+                        # Add bounding box dimensions
+                        bbox_dimensions.append(f"{xmax - xmin} × {ymax - ymin}")
                     
-                    # Draw bounding box with consistent class-specific color
-                    plot_one_box([xmin, ymin, xmax, ymax], frame, class_color, f"{class_name} {float(box.conf):.2f}")
+                        # Draw bounding box with consistent class-specific color
+                        plot_one_box([xmin, ymin, xmax, ymax], frame, class_color, f"{class_name} {float(box.conf):.2f}")
 
     # Calculate object coverage
     object_coverage = (total_box_area / total_camera_area) * 100 if total_camera_area > 0 else 0
