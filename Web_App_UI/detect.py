@@ -6,30 +6,16 @@ import random
 DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
 
 # Constants for standardization
-STANDARD_BORDER_THICKNESS = 3  # Consistent border thickness
-STANDARD_FONT_STYLE = cv2.LINE_AA  # Consistent font style
-STANDARD_FONT_SIZE = 1  # Consistent font size
-CLASS_COLORS = {
-    "Axe": (0, 255, 0),  # Green
-    "Gun": (255, 0, 0),  # Blue
-    "Knife": (0, 0, 255)  # Red
-}
-
-import cv2
-from utility_functions import correct_coordinates
-from detectron2.engine import DefaultPredictor
-
-# Constants for standardization
-STANDARD_BORDER_THICKNESS = 3  # Consistent border thickness
-STANDARD_FONT_STYLE = cv2.FONT_HERSHEY_SIMPLEX  # Consistent font style
+STANDARD_BORDER_THICKNESS = 2  # Consistent border thickness
+STANDARD_FONT_STYLE = cv2.FONT_HERSHEY_DUPLEX  # Consistent font style
 STANDARD_FONT_SIZE = 1  # Consistent font size
 TEXT_COLOR = (255, 255, 255)  # White text color
 
 # Predefined class-specific colors
 CLASS_COLORS = {
-    "Axe": (0, 255, 0),  # Green
-    "Gun": (255, 0, 0),  # Blue
-    "Knife": (0, 0, 255)  # Red
+    "Axe": (9, 180, 105),  # Green
+    "Gun": (255, 81, 31),  # Blue
+    "Knife": (49, 49, 255)  # Red
 }
 
 # Function to draw text label with a background, ensuring proper alignment with the bounding box
