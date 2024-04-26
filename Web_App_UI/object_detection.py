@@ -94,6 +94,7 @@ def generate_frames(camera_index):
         yield f'data: {{"type": "object_coverage", "data": "{object_coverage:.2f}"}}\n\n'
         yield f'data: {{"type": "camera_dimensions", "data": "{camera_dimensions}"}}\n\n'
         yield f'data: {{"type": "bbox_dimensions", "data": "{bbox_dimensions}"}}\n\n'
+        yield f'data: {{"type": "object_count", "data": "{len(bbox_dimensions)}"}}\n\n'
 
     # Release camera resource
     cap.release()  # Release the camera

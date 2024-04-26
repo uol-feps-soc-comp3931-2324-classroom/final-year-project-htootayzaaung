@@ -44,11 +44,14 @@ function initComprehensiveStats(cameraIndices) {
         const coverageCell = document.createElement("td");
         const camDimensionCell = document.createElement("td");  // New column for camera dimensions
         const bboxDimensionCell = document.createElement("td");  // New column for bounding box dimensions
+        const objectCountCell = document.createElement("td");
 
         row.appendChild(fpsCell);
         row.appendChild(coverageCell);
         row.appendChild(camDimensionCell);  // Add to row
         row.appendChild(bboxDimensionCell);  // Add to row
+        row.appendChild(objectCountCell);
+
         statsBody.appendChild(row);  // Add row to table
 
         const source = new EventSource(`/video_feed/${index}`);  // EventSource for camera index
@@ -68,24 +71,20 @@ function initComprehensiveStats(cameraIndices) {
                 videoFeed.appendChild(img);
             }
 
-            // Handle FPS updates
             if (data.type === "fps") {
                 fpsCell.innerText = `${data.data}`;  // Update FPS
             }
-
-            // Handle object coverage
             if (data.type === "object_coverage") {
                 coverageCell.innerText = `${parseFloat(data.data).toFixed(2)}%`;  // Update object coverage
             }
-
-            // Handle camera dimensions
             if (data.type === "camera_dimensions") {
                 camDimensionCell.innerText = `${data.data}`;  // Update camera dimensions
             }
-
-            // Handle bounding box dimensions
             if (data.type === "bbox_dimensions") {
                 bboxDimensionCell.innerText = `${data.data}`;  // Display all bounding box dimensions
+            }
+            if (data.type === "object_count") {
+                objectCountCell.innerText = data.data; // Update with object count
             }
         };
 
