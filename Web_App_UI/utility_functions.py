@@ -1,6 +1,39 @@
 import cv2
 import numpy as np
 
+DETECTRON2_CLASS_NAMES = ["Axe", "Gun", "Knife"]
+
+# Constants for standardization
+STANDARD_BORDER_THICKNESS = 2  # Consistent border thickness
+STANDARD_FONT_STYLE = cv2.FONT_HERSHEY_DUPLEX  # Consistent font style
+STANDARD_FONT_SIZE = 1  # Consistent font size
+TEXT_COLOR = (255, 255, 255)  # White text color
+
+# Predefined class-specific colors
+CLASS_COLORS = {
+    "Axe": (9, 180, 105),  # Green
+    "Gun": (255, 81, 31),  # Blue
+    "Knife": (49, 49, 255)  # Red
+}
+
+# Function to draw text label with a background, ensuring proper alignment with the bounding box
+def draw_label_with_background(frame, label, position, class_name):
+    class_color = CLASS_COLORS[class_name]  # Use class-specific color
+
+    # Calculate text size and adjust the position to reduce the gap
+    text_size = cv2.getTextSize(label, STANDARD_FONT_STYLE, STANDARD_FONT_SIZE, STANDARD_BORDER_THICKNESS)[0]
+
+    # Adjust the filled rectangle position to minimize the gap
+    rectangle_top_left = (position[0], position[1] - text_size[1])  # Aligns closely with bounding box
+    rectangle_bottom_right = (position[0] + text_size[0], position[1] - 1)  # -1 to bring it close to the box edge
+
+    # Draw filled rectangle for the label's background
+    cv2.rectangle(frame, rectangle_top_left, rectangle_bottom_right, class_color, -1)
+
+    # Draw the text label, ensuring proper alignment
+    cv2.putText(frame, label, (position[0], rectangle_top_left[1] + text_size[1]), STANDARD_FONT_STYLE, STANDARD_FONT_SIZE, TEXT_COLOR, STANDARD_BORDER_THICKNESS)
+
+
 def overlay(image, mask, color, alpha, resize=None):
     colored_mask = np.expand_dims(mask, 0).repeat(3, axis=0)
     colored_mask = np.moveaxis(colored_mask, 0, -1)
