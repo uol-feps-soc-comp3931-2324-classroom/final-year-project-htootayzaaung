@@ -1,5 +1,5 @@
 import cv2
-from utility_functions import overlay, plot_one_box
+from utility_functions import overlay, plot_one_box, correct_coordinates
 from detectron2.engine import DefaultPredictor
 import random
 
@@ -14,12 +14,6 @@ def detect_objects(frame, current_model, model_type):
 
     if current_model is None:
         return frame, 0, []  # Return original frame, 0% coverage, and empty list for bounding box dimensions
-
-    # Ensure non-negative bounding box areas
-    def correct_coordinates(x1, x2, y1, y2):
-        x1, x2 = min(x1, x2), max(x1, x2)
-        y1, y2 = min(y1, y2), max(y1, y2)
-        return x1, x2, y1, y2
 
     if isinstance(current_model, DefaultPredictor):
         outputs = current_model(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
