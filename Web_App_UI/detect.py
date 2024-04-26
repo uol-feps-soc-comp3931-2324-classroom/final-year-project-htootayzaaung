@@ -96,28 +96,30 @@ def detect_objects(frame, current_model, model_type):
     elif model_type == 'yolo_segmentation':
         results = current_model(frame, stream=True)
         class_names = current_model.names
-        colors = [[random.randint(0, 255) for _ in range(3)] for _ in class_names]
         
         for r in results:
             boxes = r.boxes
             masks = r.masks
             
             if masks is not None:
-                masks = masks.data.cpu()  # Make sure it's on CPU
+                masks = masks.data.cpu()  # Ensure on CPU
                 for seg, box in zip(masks.data.cpu().numpy(), boxes):
-                    color = colors[int(box.cls)]
+                    class_name = class_names[int(box.cls)]
+                    class_color = CLASS_COLORS[class_name]  # Consistent class-specific color
+                    
                     seg = cv2.resize(seg, (frame.shape[1], frame.shape[0]))
-                    frame = overlay(frame, seg, color, 0.4)
+                    frame = overlay(frame, seg, class_color, 0.4)  # Apply the consistent overlay color
 
                     xmin, ymin, xmax, ymax = map(int, box.xyxy[0])
                     xmin, xmax, ymin, ymax = correct_coordinates(xmin, xmax, ymin, ymax)  # Correct coordinates
-                    box_area = (xmax - xmin) * (ymax - ymin)  # Calculate bounding box area
-                    total_box_area += max(0, box_area)  # Ensure non-negative box areas
-                    
-                    # New: Add bounding box dimensions
+                    box_area = (xmax - xmin) * (ymax - ymin)
+                    total_box_area += max(0, box_area)
+
+                    # Add bounding box dimensions
                     bbox_dimensions.append(f"{xmax - xmin} × {ymax - ymin}")
                     
-                    plot_one_box([xmin, ymin, xmax, ymax], frame, color, f"{class_names[int(box.cls)]} {float(box.conf):.2f}")
+                    # Draw bounding box with consistent class-specific color
+                    plot_one_box([xmin, ymin, xmax, ymax], frame, class_color, f"{class_name} {float(box.conf):.2f}")
 
     # Calculate object coverage
     object_coverage = (total_box_area / total_camera_area) * 100 if total_camera_area > 0 else 0
