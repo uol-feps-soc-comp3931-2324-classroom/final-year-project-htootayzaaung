@@ -32,20 +32,22 @@ CLASS_COLORS = {
     "Knife": (0, 0, 255)  # Red
 }
 
-# Function to draw text label with a background
+# Function to draw text label with a background, ensuring proper alignment with the bounding box
 def draw_label_with_background(frame, label, position, class_name):
-    class_color = CLASS_COLORS[class_name]  # Get class-specific color, raising KeyError if class name is unknown
+    class_color = CLASS_COLORS[class_name]  # Use class-specific color
 
-    # Calculate text size and rectangle coordinates for the label's background
+    # Calculate text size and adjust the position to reduce the gap
     text_size = cv2.getTextSize(label, STANDARD_FONT_STYLE, STANDARD_FONT_SIZE, STANDARD_BORDER_THICKNESS)[0]
-    rectangle_top_left = (position[0], position[1] - text_size[1] - 4)  # Offset for text
-    rectangle_bottom_right = (position[0] + text_size[0], position[1])
+
+    # Adjust the filled rectangle position to minimize the gap
+    rectangle_top_left = (position[0], position[1] - text_size[1])  # Aligns closely with bounding box
+    rectangle_bottom_right = (position[0] + text_size[0], position[1] - 1)  # -1 to bring it close to the box edge
 
     # Draw filled rectangle for the label's background
     cv2.rectangle(frame, rectangle_top_left, rectangle_bottom_right, class_color, -1)
 
-    # Draw the text label
-    cv2.putText(frame, label, (position[0], position[1]), STANDARD_FONT_STYLE, STANDARD_FONT_SIZE, TEXT_COLOR, STANDARD_BORDER_THICKNESS)
+    # Draw the text label, ensuring proper alignment
+    cv2.putText(frame, label, (position[0], rectangle_top_left[1] + text_size[1]), STANDARD_FONT_STYLE, STANDARD_FONT_SIZE, TEXT_COLOR, STANDARD_BORDER_THICKNESS)
 
 def detect_objects(frame, current_model, model_type):
     if current_model is None:
@@ -81,7 +83,7 @@ def detect_objects(frame, current_model, model_type):
                 cv2.rectangle(frame, (x1, y1), (x2, y2), class_color, STANDARD_BORDER_THICKNESS)
                 
                 label = f"{class_name}: {score:.2f}"
-                draw_label_with_background(frame, label, (x1, y1 - 10), class_name)  # Draw label with consistent background
+                draw_label_with_background(frame, label, (x1, y1), class_name)  # Draw label with consistent background
 
     elif model_type == 'yolo_detection':
         if current_model is not None:
@@ -103,7 +105,7 @@ def detect_objects(frame, current_model, model_type):
                             class_color = CLASS_COLORS[class_name]  # Ensure correct color based on class
                             cv2.rectangle(frame, (x1, y1), (x2, y2), class_color, STANDARD_BORDER_THICKNESS)  # Draw bounding box
                             label = f"{class_name}: {confidence:.2f}"
-                            draw_label_with_background(frame, label, (x1, y1 - 10), class_name)  # Draw label with consistent background
+                            draw_label_with_background(frame, label, (x1, y1), class_name)  # Draw label with consistent background
                             
     elif model_type == 'yolo_segmentation':
         results = current_model(frame, stream=True)
