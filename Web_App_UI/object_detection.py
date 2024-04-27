@@ -72,7 +72,7 @@ def generate_frames(camera_index):
         blurred_frame = blur_faces(frame)  # New: Apply facial blurring
 
         # Submit frame processing to the thread pool
-        future = executor.submit(detect_objects, blurred_frame, current_model, model_type)  # Object detection after blurring
+        future = executor.submit(detect_objects, blurred_frame, current_model, model_type, camera_index)  # Object detection after blurring
         processed_frame, object_coverage, bbox_dimensions = future.result()  # Get results
 
         # Calculate FPS

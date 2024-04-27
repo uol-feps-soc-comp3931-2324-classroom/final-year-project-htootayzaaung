@@ -93,3 +93,16 @@ function initComprehensiveStats(cameraIndices) {
         };
     });
 }
+
+function confirmAlert() {
+    $.ajax({
+        type: 'POST',
+        url: '/confirm_alert',
+        success: function() {
+            console.log('Alert confirmed and sent');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error confirming alert:', error);
+        }
+    });
+}

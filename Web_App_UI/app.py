@@ -6,6 +6,7 @@ import cv2
 from ultralytics import YOLO
 from detectron2.utils.logger import setup_logger
 from object_detection import load_model, unload_model, generate_frames  # Functions imported
+from detect import send_whatsapp_alert  # Function to send WhatsApp alert
 
 setup_logger()
 
@@ -41,6 +42,11 @@ def video_feed(camera_index):
     if camera_index not in camera_indices:  # Validate against the list of known camera indexes
         return "Invalid camera index", 400
     return Response(generate_frames(camera_index), mimetype='text/event-stream')
+
+@app.route('/confirm_alert', methods=['POST'])
+def confirm_alert():
+    send_whatsapp_alert()  # Call function to send the alert
+    return "Alert confirmed and sent", 200
 
 if __name__ == '__main__':
     app.run(debug=True, threaded=True)  # Start the Flask server
