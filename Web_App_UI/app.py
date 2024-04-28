@@ -56,13 +56,13 @@ def video_feed(camera_index):
 @app.route('/send_alert_email', methods=['POST'])
 def send_alert_email():
     # Email recipient (this could be dynamic)
-    recipient = 'htootayzaaung.01@gmail.com'
+    recipients_list = ['htootayzaaung.01@gmail.com', 'vladtheimpaler969@gmail.com']
     
     # Create email message
     msg = Message(
         subject='Alert Notification: Lethal Object Detected!',
         sender=app.config['MAIL_USERNAME'],  # Email sender
-        recipients=[recipient],  # List of recipients
+        recipients=recipients_list,  # List of recipients
     )
     
     # Render email content with HTML template
