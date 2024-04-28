@@ -3,19 +3,23 @@ import cv2
 from utility_functions import overlay, plot_one_box, correct_coordinates, draw_label_with_background, CLASS_COLORS, STANDARD_BORDER_THICKNESS, DETECTRON2_CLASS_NAMES
 from detectron2.engine import DefaultPredictor
 import requests
+import os
 
 detection_start_times = {}
 ALERT_THRESHOLD = 2
+ALERT_IMAGE_DIR = "alert_images"
+os.makedirs(ALERT_IMAGE_DIR, exist_ok=True)
 
-def trigger_email_alert():
+def trigger_email_alert(image_filename=None):
     try:
-        response = requests.post("http://localhost:5000/send_alert_email")
+        response = requests.post("http://localhost:5000/send_alert_email", json={"image_filename": image_filename})
         if response.status_code == 200:
             print("Email alert sent successfully")
         else:
             print("Error sending email alert:", response.status_code, response.text)
     except requests.RequestException as e:
         print("Exception while sending email alert:", e)
+
 
 def detect_objects(frame, current_model, model_type, camera_index):
     global detection_start_times
@@ -127,6 +131,10 @@ def detect_objects(frame, current_model, model_type, camera_index):
         elif time.time() - detection_start_times[camera_index] >= ALERT_THRESHOLD:
             trigger_email_alert()   # Trigger alert for 4 seconds of continuous detection
             detection_start_times[camera_index] = None  # Reset the timer after sending the alert
+            timestamp = int(time.time())
+            image_filename = f"{ALERT_IMAGE_DIR}/alert_{camera_index}_{timestamp}.jpg"
+            cv2.imwrite(image_filename, frame)  # Save the frame
+            trigger_email_alert(image_filename)
     else:
         detection_start_times[camera_index] = None  # Reset if no lethal object is detected
 
