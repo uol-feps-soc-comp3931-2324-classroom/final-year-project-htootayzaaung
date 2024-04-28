@@ -129,7 +129,6 @@ def detect_objects(frame, current_model, model_type, camera_index):
         if detection_start_times.get(camera_index) is None:
             detection_start_times[camera_index] = time.time()  # Start the timer for this camera
         elif time.time() - detection_start_times[camera_index] >= ALERT_THRESHOLD:
-            trigger_email_alert()   # Trigger alert for 4 seconds of continuous detection
             detection_start_times[camera_index] = None  # Reset the timer after sending the alert
             timestamp = int(time.time())
             image_filename = f"{ALERT_IMAGE_DIR}/alert_{camera_index}_{timestamp}.jpg"
