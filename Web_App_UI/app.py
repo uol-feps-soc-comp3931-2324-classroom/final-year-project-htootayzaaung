@@ -16,8 +16,8 @@ models_directory = "models"
 camera_indices = [0, 4]  # Known camera indexes
 
 camera_locations = {
-    0: "Entrance",
-    4: "Lobby",
+    0: "Entrance, Gate A",
+    4: "Lobby, Long A",
     # Add other camera indices and their locations here
 }
 
