@@ -93,3 +93,30 @@ function initComprehensiveStats(cameraIndices) {
         };
     });
 }
+
+function confirmAlert() {
+    $.ajax({
+        type: 'POST',
+        url: '/confirm_alert',
+        success: function() {
+            console.log('Alert confirmed and sent');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error confirming alert:', error);
+        }
+    });
+}
+
+function sendEmailAlert(alertMessage) {
+    $.ajax({
+        type: 'POST',
+        url: '/send_email_alert',
+        data: { alert_message: alertMessage },  // Optional custom alert message
+        success: function() {
+            console.log('Email alert sent successfully');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error sending email alert:', error);
+        }
+    });
+}
