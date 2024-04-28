@@ -15,6 +15,12 @@ app.jinja_env.autoescape = True
 models_directory = "models"
 camera_indices = [0, 4]  # Known camera indexes
 
+camera_locations = {
+    0: "Entrance",
+    4: "Lobby",
+    # Add other camera indices and their locations here
+}
+
 # Flask-Mail configuration
 app.config['MAIL_SERVER']="smtp.gmail.com"
 app.config['MAIL_PORT'] = 465
@@ -27,13 +33,19 @@ mail = Mail(app)  # Initialize Flask-Mail
 
 @app.route('/')
 def index():
-    # List model files
     model_files = []
     for root, dirs, files in os.walk(models_directory):
         for file in files:
             if file.endswith('.pt') or file.endswith('.pth'):
                 model_files.append(os.path.relpath(os.path.join(root, file), models_directory))
-    return render_template('index.html', model_files=model_files, camera_indices=camera_indices)
+    
+    # Include the camera locations in the context passed to the template
+    return render_template(
+        'index.html', 
+        model_files=model_files, 
+        camera_indices=camera_indices, 
+        camera_locations=camera_locations
+    )
 
 @app.route('/load_model', methods=['POST'])
 def handle_load_model():
