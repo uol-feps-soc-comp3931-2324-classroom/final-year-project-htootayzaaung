@@ -106,3 +106,17 @@ function confirmAlert() {
         }
     });
 }
+
+function sendEmailAlert(alertMessage) {
+    $.ajax({
+        type: 'POST',
+        url: '/send_email_alert',
+        data: { alert_message: alertMessage },  // Optional custom alert message
+        success: function() {
+            console.log('Email alert sent successfully');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error sending email alert:', error);
+        }
+    });
+}

@@ -2,25 +2,20 @@ import time
 import cv2
 from utility_functions import overlay, plot_one_box, correct_coordinates, draw_label_with_background, CLASS_COLORS, STANDARD_BORDER_THICKNESS, DETECTRON2_CLASS_NAMES
 from detectron2.engine import DefaultPredictor
-from twilio.rest import Client
+import requests
 
-# Initialize Twilio credentials
-TWILIO_ACCOUNT_SID = "AC5959fe0e9b20afc21dbbf56eaa5ae381"
-TWILIO_AUTH_TOKEN = "3838e6b4308762b814677213f2bcd107"
-TWILIO_WHATSAPP_FROM = "+447748958641"  
-TWILIO_WHATSAPP_TO = "+447436600141" 
-
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN) 
 detection_start_times = {}
 ALERT_THRESHOLD = 2
 
-def send_whatsapp_alert():
-    message = client.messages.create(
-        from_=TWILIO_WHATSAPP_FROM,
-        body="Alert: Lethal object detected for 4 seconds without interruption!",
-        to=TWILIO_WHATSAPP_TO
-    )
-    print(f"WhatsApp Alert Sent: {message.sid}")
+def trigger_email_alert():
+    try:
+        response = requests.post("http://localhost:5000/send_alert_email")
+        if response.status_code == 200:
+            print("Email alert sent successfully")
+        else:
+            print("Error sending email alert:", response.status_code, response.text)
+    except requests.RequestException as e:
+        print("Exception while sending email alert:", e)
 
 def detect_objects(frame, current_model, model_type, camera_index):
     global detection_start_times
@@ -130,7 +125,7 @@ def detect_objects(frame, current_model, model_type, camera_index):
         if detection_start_times.get(camera_index) is None:
             detection_start_times[camera_index] = time.time()  # Start the timer for this camera
         elif time.time() - detection_start_times[camera_index] >= ALERT_THRESHOLD:
-            send_whatsapp_alert()  # Trigger alert for 4 seconds of continuous detection
+            trigger_email_alert()   # Trigger alert for 4 seconds of continuous detection
             detection_start_times[camera_index] = None  # Reset the timer after sending the alert
     else:
         detection_start_times[camera_index] = None  # Reset if no lethal object is detected
