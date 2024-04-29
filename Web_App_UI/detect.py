@@ -10,16 +10,15 @@ ALERT_THRESHOLD = 2
 ALERT_IMAGE_DIR = "alert_images"
 os.makedirs(ALERT_IMAGE_DIR, exist_ok=True)
 
-def trigger_email_alert(image_filename=None):
+def trigger_email_alert(image_filename=None, camera_index=None):
     try:
-        response = requests.post("http://localhost:5000/send_alert_email", json={"image_filename": image_filename})
+        response = requests.post("http://localhost:5000/send_alert_email", json={"image_filename": image_filename, "camera_index": camera_index})
         if response.status_code == 200:
             print("Email alert sent successfully")
         else:
             print("Error sending email alert:", response.status_code, response.text)
     except requests.RequestException as e:
         print("Exception while sending email alert:", e)
-
 
 def detect_objects(frame, current_model, model_type, camera_index):
     global detection_start_times
@@ -133,7 +132,7 @@ def detect_objects(frame, current_model, model_type, camera_index):
             timestamp = int(time.time())
             image_filename = f"{ALERT_IMAGE_DIR}/alert_{camera_index}_{timestamp}.jpg"
             cv2.imwrite(image_filename, frame)  # Save the frame
-            trigger_email_alert(image_filename)
+            trigger_email_alert(image_filename, camera_index)
     else:
         detection_start_times[camera_index] = None  # Reset if no lethal object is detected
 

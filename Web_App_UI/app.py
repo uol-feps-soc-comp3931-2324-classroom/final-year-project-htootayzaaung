@@ -67,43 +67,37 @@ def video_feed(camera_index):
 
 @app.route('/send_alert_email', methods=['POST'])
 def send_alert_email():
-    # List of email recipients (can be configured or retrieved from POST data)
     recipients_list = ['htootayzaaung.01@gmail.com', 'vladtheimpaler969@gmail.com']
 
-    # Create the email message with a subject and sender
     msg = Message(
         subject='Alert Notification: Lethal Object Detected!',
-        sender=app.config['MAIL_USERNAME'],  # Use your configured email address
-        recipients=recipients_list,  # List of recipients
+        sender=app.config['MAIL_USERNAME'],
+        recipients=recipients_list,
     )
 
-    # Get the image filename from the POST data
     image_filename = request.json.get("image_filename")
+    camera_index = request.json.get("camera_index")
 
+    # Retrieve camera location based on the index
+    if camera_index in camera_locations:
+        camera_location = camera_locations[camera_index]
+    else:
+        camera_location = "Unknown"
+
+    image_html = ""
     if image_filename and os.path.exists(image_filename):
-        # Attach the image to the email
         with open(image_filename, "rb") as image_file:
             image_data = image_file.read()
-            msg.attach(os.path.basename(image_filename), "image/jpeg", image_data)  # Attach image to email
-        
-        # Render the image in the email HTML using base64 encoding
-        image_base64 = base64.b64encode(image_data).decode("utf-8")
-        image_html = f'<img src="data:image/jpeg;base64,{image_base64}" alt="Detected Object">'
+            msg.attach(os.path.basename(image_filename), "image/jpeg", image_data)
+            image_base64 = base64.b64encode(image_data).decode("utf-8")
+            image_html = f'<img src="data:image/jpeg;base64,{image_base64}" alt="Detected Object">'
 
-        # Include the image in the email body with the rendered HTML content
-        msg.html = render_template(
-            'alert_email.html',  # HTML template for the email body
-            image_html=image_html  # Embed the base64-encoded image
-        )
-    
-    else:
-        # Default HTML content if no image is provided
-        msg.html = render_template(
-            'alert_email.html',
-            image_html=''  # No image embedded
-        )
-    
-    # Send the email
+    msg.html = render_template(
+        'alert_email.html',
+        image_html=image_html,
+        camera_location=camera_location,
+    )
+
     mail.send(msg)
     return jsonify({"status": "Email sent successfully"}), 200
 
