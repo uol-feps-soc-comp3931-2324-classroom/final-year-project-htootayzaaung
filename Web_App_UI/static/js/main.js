@@ -40,6 +40,10 @@ function initComprehensiveStats(cameraIndices) {
         indexCell.innerText = index;  // Camera index
         row.appendChild(indexCell);  // Add to row
 
+        const locationCell = document.createElement("td");
+        locationCell.innerText = cameraLocations[index] || "Unknown"; // Use the mapping or fallback to 'Unknown'
+        row.appendChild(locationCell);
+
         const fpsCell = document.createElement("td");
         const coverageCell = document.createElement("td");
         const camDimensionCell = document.createElement("td");  // New column for camera dimensions
