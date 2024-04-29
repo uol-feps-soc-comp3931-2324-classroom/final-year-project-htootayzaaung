@@ -4,25 +4,34 @@
     <meta charset="UTF-8">
     <title>Alert Notification</title>
     <style>
-        /* Add custom CSS styling if needed */
+        /* Styles for the alert email */
         body {
-            font-family: Arial, sans-serif;
-            color: #333;
+            background-color: #1a1a1a; /* Dark background */
+            color: #8fc605; /* Light text color */
+        }
+        .container {
+            padding: 20px;
         }
         .content {
-            padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            background-color: #333333; /* Dark background for content area */
+            padding: 20px;
+        }
+        h1, h3, p {
+            color: #8fc605; /* Light text color */
         }
     </style>
 </head>
 <body>
-    <div class="content">
-        <h2>Alert: Lethal Object Detected!</h2>
-        <p>A lethal object has been detected at {{ camera_location }}.</p>
-        {{ image_html | safe }}
-        <p>Stay safe and alert.</p>
+    <div class="container">
+        <div class="content">
+            <h3>GuardLens: Real-time Weapon Detection System</h1>
+            <h4>Alert: Lethal Object Detected!</h4>
+            <p>A lethal object has been detected at {{ camera_location }}.</p>
+            {{ image_html | safe }}
+            <p> Please view the evidence attached in this email. Stay safe and alert!</p>
+        </div>
     </div>
 </body>
 </html>
