@@ -122,7 +122,8 @@ def detect_objects(frame, current_model, model_type, camera_index):
                         # Draw bounding box with consistent class-specific color
                         plot_one_box([xmin, ymin, xmax, ymax], frame, class_color, f"{class_name} {float(box.conf):.2f}")
                         
-    # Alert logic for multiple cameras
+    object_coverage = (total_box_area / total_camera_area) * 100 if total_camera_area > 0 else 0
+                        
     # Alert logic for multiple cameras
     if detected_lethal:
         if detection_start_times.get(camera_index) is None:
@@ -135,7 +136,5 @@ def detect_objects(frame, current_model, model_type, camera_index):
             trigger_email_alert(image_filename, camera_index)
     else:
         detection_start_times[camera_index] = None  # Reset if no lethal object is detected
-
-    object_coverage = (total_box_area / total_camera_area) * 100 if total_camera_area > 0 else 0
 
     return frame, object_coverage, bbox_dimensions
