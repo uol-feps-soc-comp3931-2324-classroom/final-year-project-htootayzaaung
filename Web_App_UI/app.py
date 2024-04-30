@@ -1,9 +1,5 @@
 import os
-import time
 from flask import Flask, render_template, request, Response, jsonify
-import base64
-import cv2
-from ultralytics import YOLO
 from detectron2.utils.logger import setup_logger
 from object_detection import load_model, unload_model, generate_frames  # Functions imported
 from flask_mail import Mail, Message
@@ -84,17 +80,13 @@ def send_alert_email():
     else:
         camera_location = "Unknown"
 
-    image_html = ""
     if image_filename and os.path.exists(image_filename):
         with open(image_filename, "rb") as image_file:
             image_data = image_file.read()
             msg.attach(os.path.basename(image_filename), "image/jpeg", image_data)
-            image_base64 = base64.b64encode(image_data).decode("utf-8")
-            image_html = f'<img src="data:image/jpeg;base64,{image_base64}" alt="Detected Object">'
 
     msg.html = render_template(
         'alert_email.html',
-        image_html=image_html,
         camera_location=camera_location,
     )
 
