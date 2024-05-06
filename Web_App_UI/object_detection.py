@@ -17,7 +17,7 @@ models_directory = "models"
 current_model = None
 model_type = None  # To track the current model type
 
-executor = ThreadPoolExecutor(max_workers=8)  # Adjust as needed
+executor = ThreadPoolExecutor(max_workers=16)  # Adjust as needed
 
 def load_model(model_name):
     global current_model, model_type
